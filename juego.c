@@ -297,7 +297,7 @@ int menu(Tigr *pantalla, int ancho_ventana, int alto_ventana) {
             tigrPrint(pantalla_menu.i, tfont, 5, alto_ventana-15, tigrRGB(225, 225, 225), "Hecho por: Alexander Veldemar, Danil Launov y Andres Maciá.", 0);
             // Pinta cursor personalizado.
             tigrBlitAlpha(pantalla_menu.i, cursor.i, cursor.x, cursor.y, 0, 0, 32, 32, 1);
-            }
+        }
         // Actualiza la imagen.
         tigrUpdate(pantalla);
     }
@@ -348,9 +348,12 @@ int poner_nombre(Tigr *pantalla, int ancho_ventana, int alto_ventana) {
         }
         // Limpia el fondo de la pantalla.
         tigrClear(pantalla, tigrRGB(0, 0, 0));
+        
         // Integracion de la pantalla de cambiar nombre a la pantalla del programa y elevacion de cierre.
         tigrBlitAlpha(pantalla, pantalla_nombre.i, pantalla_nombre.x, pantalla_nombre.y, 0, 0, pantalla_nombre.w, pantalla_nombre.h, 1);
         if(!ending) {
+            // Limpia la pantalla de cambiar nombre.
+            tigrClear(pantalla_nombre.i, tigrRGB(0, 0, 0));
             // Imprime el texto por pantalla.
             tigrPrint(pantalla_nombre.i, tfont, ancho_ventana/6, alto_ventana/6, tigrRGB(252, 252, 252), "Introduce tu nombre:", 0);
             tigrPrint(pantalla_nombre.i, tfont, ancho_ventana/6+140, alto_ventana/6, tigrRGB(117, 227, 20),"%s", nombre);
