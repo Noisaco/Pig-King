@@ -3,16 +3,23 @@
 #include<stdbool.h>
 #include"./tigr/tigr.h"
 
-struct coordenadas { // Establecimiento del registro de imagen, coordenadas y dimensiones de los diferentes elementos del juego.
+typedef struct { // Establecimiento del registro de imagen, coordenadas y dimensiones de los diferentes elementos del juego.
     Tigr *i;
     int x;
     int y;
     int w;
     int h;
-};
+} coordenadas;
+float Calcular_Tiempo() {
+    float tiempo_inicial=0, tiempo_final=0, tiempo_total=0;
+    tiempo_final=tigrTime();
+    tiempo_total=(tiempo_final-tiempo_inicial);
+    tiempo_inicial=tigrTime();
+    return tiempo_total;
+}
 // Modulo que muestra el menu.
-int menu(Tigr *pantalla, int ancho_ventana, int alto_ventana) {
-    struct coordenadas cursor, cortina, plantilla, titulo, sombra, boton_jugar, boton_niveles, boton_puntuacion, pantalla_menu;
+int menu(Tigr *pantalla, int ancho_ventana, int alto_ventana, float velocidad_ending) {
+    coordenadas cursor, cortina, plantilla, titulo, sombra, boton_jugar, boton_niveles, boton_puntuacion, pantalla_menu;
     
     pantalla_menu.x=0, pantalla_menu.y=0, pantalla_menu.w=ancho_ventana, pantalla_menu.h=alto_ventana;
     pantalla_menu.i=tigrBitmap(pantalla_menu.w, pantalla_menu.h);
@@ -32,11 +39,11 @@ int menu(Tigr *pantalla, int ancho_ventana, int alto_ventana) {
     boton_niveles.x=ancho_ventana, boton_niveles.y=alto_ventana, boton_niveles.w=0, boton_niveles.h=2*alto_ventana/16;
     boton_puntuacion.x=ancho_ventana, boton_puntuacion.y=alto_ventana, boton_puntuacion.w=0, boton_puntuacion.h=2*alto_ventana/16;
 
-    int aparicion_botones=1, seleccion=0, click=0, last_click=0, botes=0, elevacion=0, elevacion_cierre=0, i=0, j=0;
+    int aparicion_botones=1, seleccion=-1, click=0, last_click=0, botes=0, elevacion=0, elevacion_cierre=0, i=0, j=0;
     // Creacion de los diferentes controladores de tiempo.
-    float tiempo_inicial, tiempo_final, tiempo_total, tiempo_animacion, tiempo_parpadeo, tiempo_botones;
-    float resguardo=0, velocidad_ending=1000,velocidad_titulo=0, velocidad_plantilla=250, aceleracion=1000;
-    bool plantilla_terminada, seleccionado, permitido, opening, ending;
+    float tiempo_total, tiempo_animacion, tiempo_parpadeo, tiempo_botones;
+    float resguardo=0,velocidad_titulo=0, velocidad_plantilla=250, aceleracion=1000;
+    bool plantilla_terminada, cierre, permitido, opening, ending;
     TPixel color_morado=tigrRGB(160, 0, 100), color_azul=tigrRGB(69, 0, 98), cuerpo_o_sombra, tema_actual, tema1=tigrRGB(40, 131, 250), tema2=tigrRGB(252, 221, 78), color_sombra=tigrRGB(26, 6, 92);
     // Creacion del color de los botones.
     TPixel presion_boton_jugar, presion_boton_niveles, presion_boton_puntuacion, si_presionado=tigrRGB(70,83,199),  no_presionado=tigrRGB(116, 130, 252), color_seleccionado=tigrRGB(9, 176, 70);
@@ -46,15 +53,15 @@ int menu(Tigr *pantalla, int ancho_ventana, int alto_ventana) {
     // Asignacion del tema principal inicial.
     tema_actual=tema1;
     // Asignacion de los tiempos.
-    tiempo_inicial=0, tiempo_final=0, tiempo_total=0, tiempo_animacion=0, tiempo_parpadeo=0, tiempo_botones=0;
+    tiempo_total=0, tiempo_animacion=0, tiempo_parpadeo=0, tiempo_botones=0;
     // Asignacion de los booleanos.
-    plantilla_terminada=false, seleccionado=false, permitido=false, opening=true, ending=false;
-    while(!seleccionado && !tigrClosed(pantalla) && !tigrKeyHeld(pantalla, TK_ESCAPE)) {
+    plantilla_terminada=false, cierre=false, permitido=false, opening=true, ending=false;
+    
+    
+    while((!cierre) && !tigrClosed(pantalla)) {
         // Calculo del tiempo que tarda el ordenador en ejecutar un ciclo del programa.
-        tiempo_final=tigrTime();
-        tiempo_total=(tiempo_final-tiempo_inicial);
+        tiempo_total=Calcular_Tiempo();
         tiempo_animacion+=tiempo_total;
-        tiempo_inicial=tigrTime();
         // Efecto de bote de la cortina del titulo.
         if((resguardo==(2*alto_ventana/8)) && (velocidad_titulo>0) && (botes!=4)) { 
             velocidad_titulo=-velocidad_titulo*0.7;
@@ -146,7 +153,7 @@ int menu(Tigr *pantalla, int ancho_ventana, int alto_ventana) {
         // Obtencion de la posicion del cursor y comprobacion de si se ha clicado.
         tigrMouse(pantalla, &cursor.x, &cursor.y, &click);
         // Comprobacion de si el cursor esta encima de algun boton y si ha clicado en el.
-        if((!opening) && (!ending) && (cursor.x>=boton_jugar.x) && (cursor.y>=boton_jugar.y)&& (cursor.x<=boton_jugar.x+boton_jugar.w) && (cursor.y<=boton_jugar.y+boton_jugar.h)) {
+        if((!opening) && (!ending) && (cursor.x>=boton_jugar.x) && (cursor.y>=boton_jugar.y) && (cursor.x<=boton_jugar.x+boton_jugar.w) && (cursor.y<=boton_jugar.y+boton_jugar.h)) {
             seleccion=1;
         }
         else if((!opening) && (!ending) && (cursor.x>=boton_niveles.x) && (cursor.y>=boton_niveles.y) && (cursor.x<=boton_niveles.x+boton_niveles.w) && (cursor.y<=boton_niveles.y+boton_niveles.h)) {
@@ -156,7 +163,7 @@ int menu(Tigr *pantalla, int ancho_ventana, int alto_ventana) {
             seleccion=3;
         }
         else if((!ending)) {
-            seleccion=0;
+            seleccion=-1;
         }
         presion_boton_jugar=no_presionado;
         presion_boton_niveles=no_presionado;
@@ -191,13 +198,14 @@ int menu(Tigr *pantalla, int ancho_ventana, int alto_ventana) {
                         ending=true;
                     }
                     break;
+            case -1: break;
         }
         last_click=click;
         // Inserta el efecto de television de tubos.
         tigrSetPostFX(pantalla, 1, 1, 1, 2.0f);
         // Comprobacion de si el menu se va ha cerrar.
         if(pantalla_menu.y<=-pantalla_menu.h) {
-            seleccionado=true;
+            cierre=true;
         }
         // Elevacion de la pantalla del menu.
         if(ending) {
@@ -299,47 +307,64 @@ int menu(Tigr *pantalla, int ancho_ventana, int alto_ventana) {
             // Pinta cursor personalizado.
             tigrBlitAlpha(pantalla_menu.i, cursor.i, cursor.x, cursor.y, 0, 0, 32, 32, 1);
         }
+        // Solucion errores.
+        if(tigrKeyHeld(pantalla, TK_ESCAPE)) {
+            seleccion=-1;
+            ending=true;
+        }
         // Actualiza la imagen.
         tigrUpdate(pantalla);
     }
     return seleccion;
 }
-int poner_nombre(Tigr *pantalla, int ancho_ventana, int alto_ventana) {
-    struct coordenadas pantalla_nombre;
+int poner_nombre(Tigr *pantalla, int ancho_ventana, int alto_ventana, float velocidad_ending) {
+    coordenadas pantalla_nombre;
     // Asignacion de las coordenadas y las dimensiones de la pantalla de cambiar nombre.
     pantalla_nombre.x=0, pantalla_nombre.y=0, pantalla_nombre.w=ancho_ventana, pantalla_nombre.h=alto_ventana;
     pantalla_nombre.i=tigrBitmap(pantalla_nombre.w, pantalla_nombre.h);
-    int elevacion_cierre=0;
-    int tecla=0, i=0, posicion_escritura=0;
-    char nombre[10]="          ";
-    // Creacion de los diferentes controladores de tiempo;
-    float tiempo_inicial=0, tiempo_final=0, tiempo_total=0;
-    // Creacion de los controladores de velociadad
-    float velocidad_ending=1000;
+    // Creacion de la variable que guarda el nombre del jugador.
+    char nombre[11];
+    // Creacion de las diversas variables de tipo entero.
+    int elevacion_cierre, tecla, i, posicion_escritura, caso;
+    // Creacion de los diferentes controladores de tiempo.
+    float tiempo_total;
+    // Asignacion de las diferentes variables de tipo entero.
+    elevacion_cierre=0, tecla=0, posicion_escritura=0, caso=-1;
+    // Asignacion del nombre inicial del jugador.
+    for(i=0; i<10; i++) {
+        nombre[i]=' ';
+    }
+    // Creacion de los diferentes booleanos.
     bool ending, cierre;
+    // Asignacion de los diferentes controladores de tiempo.
+    tiempo_total=0;
     // Asignacion de los booleanos.
     ending=false, cierre=false;
 
 
-    while(!tigrClosed(pantalla) && (!tigrKeyHeld(pantalla, TK_ESCAPE)) && (!cierre)) {
+    while((!tigrClosed(pantalla)) && (!cierre)) {
         // Calculo del tiempo que tarda el ordenador en ejecutar un ciclo del programa.
-        tiempo_final=tigrTime();
-        tiempo_total=(tiempo_final-tiempo_inicial);
-        tiempo_inicial=tigrTime();
+        tiempo_total=Calcular_Tiempo();
         // Lee la tecla que se esta pulsando.
         tecla=tigrReadChar(pantalla);
-        // Borra la anterior letra;
-        if(tecla==13) {
+        // Confirmar nombre.
+        if((tecla==13) && (!ending)) {
             ending=true;
+            caso=2;
         }
+        // Borra la anterior letra.
         else if((tecla==8) && (posicion_escritura>0) && (!ending)) {
             posicion_escritura--;
             nombre[posicion_escritura]=' ';
         }
         // Lee la tecla que se quiere introducir.
-        else if(tecla!=0 && posicion_escritura<10 && (tecla!=8) && (tecla!=13) && (!ending)) {
+        else if((tecla!=0) && (posicion_escritura<10) && (tecla!=8) && (tecla!=13) && (tecla!=27) && (!ending)) {
             nombre[posicion_escritura]=(char)tecla;
             posicion_escritura++;
+        }
+        else if((tigrKeyHeld(pantalla, TK_ESCAPE)) && (!ending)) {
+            ending=true;
+            caso=0;
         }
         if(ending) {
             elevacion_cierre=velocidad_ending*tiempo_total;
@@ -364,19 +389,40 @@ int poner_nombre(Tigr *pantalla, int ancho_ventana, int alto_ventana) {
         // Actualiza la imagen.
         tigrUpdate(pantalla);
     }
-    return 0;
+    return caso;
 }
-int juego() {
-
-    return 0;
+int juego(Tigr *pantalla, int ancho_ventana, int alto_ventana, float velocidad_ending) {
+    coordenadas pantalla_juego;
+    int caso;
+    float tiempo_total=0;
+    bool cierre, ending;
+    pantalla_juego.x=0, pantalla_juego.y=0, pantalla_juego.w=ancho_ventana, pantalla_juego.h=alto_ventana;
+    pantalla_juego.i=tigrBitmap(pantalla_juego.w, pantalla_juego.h);
+    caso=-1;
+    ending=false;
+    while((!tigrClosed(pantalla)) && (!cierre)) {
+        tiempo_total=Calcular_Tiempo();
+        // Limpia el fondo de pantalla.
+        tigrClear(pantalla, tigrRGB(0, 0, 0));
+        if(!ending) {
+            // Limpia la pantalla de juego.
+            tigrClear(pantalla_juego.i, tigrRGB(0, 0, 0));
+        }
+        // Actualiza la imagen.
+        tigrUpdate(pantalla);
+    }
+    return caso;
 }
 int selector_de_niveles() {
  
 }
 int main() {
-    int caso;
+    // Establecimiento de la primera pantalla en abrirse.
+    int caso=0;
     // Establecimiento de las dimensiones de la ventana del juego.
     int ancho_ventana=400, alto_ventana=400;
+    // Establecimieto de la velocidad de cierre de las diferentes pantallas del juego.
+    float velocidad_cierre=800;
     Tigr *pantalla;
 
 
@@ -385,17 +431,18 @@ int main() {
     pantalla=tigrWindow(ancho_ventana, alto_ventana, "Pig Kong", TIGR_NOCURSOR | TIGR_2X);
     printf("Ventana del juego abierta.\n");
     // Abre el menu.
-    caso=menu(pantalla, ancho_ventana, alto_ventana);
+    do {
         switch(caso) {
-            case 0: caso=menu(pantalla, ancho_ventana, alto_ventana);
+            case 0: caso=menu(pantalla, ancho_ventana, alto_ventana, velocidad_cierre);
                     break;
-            case 1: caso=poner_nombre(pantalla, ancho_ventana, alto_ventana);
+            case 1: caso=poner_nombre(pantalla, ancho_ventana, alto_ventana, velocidad_cierre);
                     break;
-            case 2: 
+            case 2: caso=juego(pantalla, ancho_ventana, alto_ventana, velocidad_cierre);
                     break;
             case 3: 
                     break;
         }
+    } while(caso!=-1);
     // Cierre de la ventana del juego.
     tigrFree(pantalla);
     printf("Juego cerrado.\n");
