@@ -201,8 +201,6 @@ int menu(Tigr *pantalla, int ancho_ventana, int alto_ventana, float velocidad_en
             case -1: break;
         }
         last_click=click;
-        // Inserta el efecto de television de tubos.
-        tigrSetPostFX(pantalla, 1, 1, 1, 2.0f);
         // Comprobacion de si el menu se va ha cerrar.
         if(pantalla_menu.y<=-pantalla_menu.h) {
             cierre=true;
@@ -392,18 +390,95 @@ int poner_nombre(Tigr *pantalla, int ancho_ventana, int alto_ventana, float velo
     return caso;
 }
 int juego(Tigr *pantalla, int ancho_ventana, int alto_ventana, float velocidad_ending) {
-    coordenadas pantalla_juego;
-    int caso;
-    float tiempo_total=0;
-    bool cierre, ending;
+    coordenadas pantalla_juego, personaje;
+    personaje.x=ancho_ventana/2, personaje.y=alto_ventana/2, personaje.w=18, personaje.h=32;
+    personaje.i = tigrLoadImage("./imagenes/personaje.png");
+    int caso, i;
+    float tiempo_total=0, resguardo_gravedad, gravedad, velocidad_caida, resguardo_movimiento, cantidad_movimiento;
+    bool cierre, pausa, caida, ending;
     pantalla_juego.x=0, pantalla_juego.y=0, pantalla_juego.w=ancho_ventana, pantalla_juego.h=alto_ventana;
     pantalla_juego.i=tigrBitmap(pantalla_juego.w, pantalla_juego.h);
     caso=-1;
-    ending=false;
+    resguardo_movimiento=personaje.x, cantidad_movimiento=0, resguardo_gravedad=0, gravedad=900, velocidad_caida=0;
+    // Asignacion de los booleanos.
+    cierre=false, pausa=false, caida=true, ending=false;
+    // Creacion del color de las estructuras.
+    TPixel color_solido=tigrRGB(69, 33, 217);
+    // Creacion de las variables para saber si estamos encima de un solido.
+    TPixel color_debajo;
+
     while((!tigrClosed(pantalla)) && (!cierre)) {
         tiempo_total=Calcular_Tiempo();
+        if(!pausa) {
+            // Detecta que direccion se quiere mover el jugador.
+            if((tigrKeyHeld(pantalla, 'A')) && (personaje.x>0)) {
+                cantidad_movimiento=100*tiempo_total;
+                cantidad_movimiento=(-cantidad_movimiento);
+            }
+            else if((tigrKeyHeld(pantalla, 'D')) && ((personaje.x+personaje.w)<ancho_ventana)){
+                cantidad_movimiento=100*tiempo_total;
+            }
+            else {
+                cantidad_movimiento=0;
+            }
+            // Calculo de la posicion horizontal del jugador.
+            resguardo_movimiento+=cantidad_movimiento;
+            personaje.x=resguardo_movimiento;
+            // Que el jugador no atraviese la ventana por los lados.
+            if(personaje.x<0){
+                resguardo_movimiento=0;
+                personaje.x=resguardo_movimiento;
+            }
+            else if((personaje.x+personaje.w)>ancho_ventana){
+                resguardo_movimiento=ancho_ventana-personaje.w;
+            }
+            personaje.x=resguardo_movimiento;
+            // Saber si esta en el aire.
+            color_debajo=tigrGet(pantalla, personaje.x+personaje.w/2, personaje.y+personaje.h);
+            // Colision plataforma.
+            if((color_debajo.r==color_solido.r) && (color_debajo.g==color_solido.g) && (color_debajo.b==color_solido.b) && (velocidad_caida>=0)) {
+                caida=false;
+                velocidad_caida=0;
+            }
+            else if((personaje.y+personaje.h)<alto_ventana){
+                caida=true;
+            }
+            // Calculo de la gravedad.
+            if(caida) {
+                velocidad_caida+=gravedad*tiempo_total;
+                resguardo_gravedad+=velocidad_caida*tiempo_total;
+                personaje.y=resguardo_gravedad;
+            }
+            // Que el jugador no atraviese la ventana por abajo.
+            if(((personaje.y+personaje.h)>alto_ventana) && (caida)) {
+                personaje.y=alto_ventana-personaje.h;
+            }
+            if(((personaje.y+personaje.h)==alto_ventana) && (caida)) {
+                caida=false;
+                velocidad_caida=0;
+            }
+            // Detecta si el jugador quiere saltar.
+            if((tigrKeyDown(pantalla, TK_SPACE)) && (!caida)) {
+                velocidad_caida=-300;
+                caida=true;
+            }
+            for(i=0; i<6; i++) {    
+                //tigrLine(pantalla_juego.i, ancho_ventana/10, (alto_ventana/2.8)+i, ancho_ventana-40, (alto_ventana/2.6)+i, color_solido);
+                //tigrLine(pantalla_juego.i, ancho_ventana/10, (alto_ventana/2.4)+i, ancho_ventana-40, (alto_ventana/2.4)+i, color_solido);
+                //tigrLine(pantalla_juego.i, ancho_ventana/10, (alto_ventana/2)+i, ancho_ventana-40, (alto_ventana/2.2)+i, color_solido);
+                //tigrLine(pantalla_juego.i, ancho_ventana/10, (alto_ventana/1.8)+i, ancho_ventana-40, (alto_ventana/1.8)+i, color_solido);   
+                //tigrLine(pantalla_juego.i, ancho_ventana/10, (alto_ventana/1.4)+i, ancho_ventana-40, (alto_ventana/1.5)+i, color_solido);
+                tigrLine(pantalla_juego.i, 4*ancho_ventana/50, 45*alto_ventana/50+i, 47*ancho_ventana/50, 45*alto_ventana/50+i, color_solido);
+            }
+
+            // Asignacion de que PNG pintar segun el estado del jugador.
+            // Pinta el jugador por pantalla.
+            tigrBlitAlpha(pantalla_juego.i, personaje.i, personaje.x, personaje.y, 0, 0, personaje.w, personaje.h, 1);
+        }
         // Limpia el fondo de pantalla.
         tigrClear(pantalla, tigrRGB(0, 0, 0));
+        // Integracion de la pantalla de cambiar nombre a la pantalla del programa y elevacion de cierre.
+        tigrBlitAlpha(pantalla, pantalla_juego.i, pantalla_juego.x, pantalla_juego.y, 0, 0, pantalla_juego.w, pantalla_juego.h, 1);
         if(!ending) {
             // Limpia la pantalla de juego.
             tigrClear(pantalla_juego.i, tigrRGB(0, 0, 0));
@@ -414,7 +489,7 @@ int juego(Tigr *pantalla, int ancho_ventana, int alto_ventana, float velocidad_e
     return caso;
 }
 int selector_de_niveles() {
- 
+
 }
 int main() {
     // Establecimiento de la primera pantalla en abrirse.
@@ -430,6 +505,8 @@ int main() {
     // Abre la ventana del juego.
     pantalla=tigrWindow(ancho_ventana, alto_ventana, "Pig Kong", TIGR_NOCURSOR | TIGR_2X);
     printf("Ventana del juego abierta.\n");
+    // Inserta el efecto de television de tubos.
+    tigrSetPostFX(pantalla, 1, 1, 1, 2.0f);
     // Abre el menu.
     do {
         switch(caso) {
