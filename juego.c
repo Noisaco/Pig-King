@@ -393,17 +393,19 @@ int juego(Tigr *pantalla, int ancho_ventana, int alto_ventana, float velocidad_e
     coordenadas pantalla_juego, personaje;
     personaje.x=ancho_ventana/2, personaje.y=alto_ventana/2, personaje.w=18, personaje.h=32;
     personaje.i = tigrLoadImage("./imagenes/personaje.png");
-    int caso, i;
+    int caso, i, ultima_posicion;
     float tiempo_total=0, resguardo_gravedad, gravedad, velocidad_caida, resguardo_movimiento, cantidad_movimiento;
+    char ultima_direccion;
     bool cierre, pausa, caida, ending;
     pantalla_juego.x=0, pantalla_juego.y=0, pantalla_juego.w=ancho_ventana, pantalla_juego.h=alto_ventana;
     pantalla_juego.i=tigrBitmap(pantalla_juego.w, pantalla_juego.h);
     caso=-1;
     resguardo_movimiento=personaje.x, cantidad_movimiento=0, resguardo_gravedad=0, gravedad=900, velocidad_caida=0;
+    ultima_direccion='D';
     // Asignacion de los booleanos.
     cierre=false, pausa=false, caida=true, ending=false;
     // Creacion del color de las estructuras.
-    TPixel color_solido=tigrRGB(69, 33, 217);
+    TPixel color_solido=tigrRGB(69, 33, 217), color_escalera=tigrRGB(30,222,45);
     // Creacion de las variables para saber si estamos encima de un solido.
     TPixel color_debajo;
 
@@ -414,9 +416,11 @@ int juego(Tigr *pantalla, int ancho_ventana, int alto_ventana, float velocidad_e
             if((tigrKeyHeld(pantalla, 'A')) && (personaje.x>0)) {
                 cantidad_movimiento=100*tiempo_total;
                 cantidad_movimiento=(-cantidad_movimiento);
+                ultima_direccion='I';
             }
             else if((tigrKeyHeld(pantalla, 'D')) && ((personaje.x+personaje.w)<ancho_ventana)){
                 cantidad_movimiento=100*tiempo_total;
+                ultima_direccion='D';
             }
             else {
                 cantidad_movimiento=0;
@@ -433,8 +437,7 @@ int juego(Tigr *pantalla, int ancho_ventana, int alto_ventana, float velocidad_e
                 resguardo_movimiento=ancho_ventana-personaje.w;
             }
             personaje.x=resguardo_movimiento;
-            // Saber si esta en el aire.
-            color_debajo=tigrGet(pantalla, personaje.x+personaje.w/2, personaje.y+personaje.h);
+            
             // Colision plataforma.
             if((color_debajo.r==color_solido.r) && (color_debajo.g==color_solido.g) && (color_debajo.b==color_solido.b) && (velocidad_caida>=0)) {
                 caida=false;
@@ -447,7 +450,25 @@ int juego(Tigr *pantalla, int ancho_ventana, int alto_ventana, float velocidad_e
             if(caida) {
                 velocidad_caida+=gravedad*tiempo_total;
                 resguardo_gravedad+=velocidad_caida*tiempo_total;
+                ultima_posicion=personaje.y;
                 personaje.y=resguardo_gravedad;
+            }
+            // Comprobar que en todo el recorrido no se ha chocado con una estructura.
+            if(velocidad_caida>=0) {
+                for(i=ultima_posicion; i<=personaje.y; i++) {
+                    // Saber si hay solido debajo.
+                    color_debajo=tigrGet(pantalla, personaje.x+personaje.w/2, i+personaje.h+1);
+                    // Colision plataforma.
+                    if((color_debajo.r==color_solido.r) && (color_debajo.g==color_solido.g) && (color_debajo.b==color_solido.b)) {
+                        caida=false;
+                        velocidad_caida=0;
+                        personaje.y=i;
+                        break;
+                    }
+                    else {
+                        caida=true
+                    }
+                }
             }
             // Que el jugador no atraviese la ventana por abajo.
             if(((personaje.y+personaje.h)>alto_ventana) && (caida)) {
@@ -470,8 +491,27 @@ int juego(Tigr *pantalla, int ancho_ventana, int alto_ventana, float velocidad_e
                 //tigrLine(pantalla_juego.i, ancho_ventana/10, (alto_ventana/1.4)+i, ancho_ventana-40, (alto_ventana/1.5)+i, color_solido);
                 tigrLine(pantalla_juego.i, 4*ancho_ventana/50, 45*alto_ventana/50+i, 47*ancho_ventana/50, 45*alto_ventana/50+i, color_solido);
             }
+            // Pintar escaleras.
+            for(i=0; i<5; i++){
+
+                tigrLine(pantalla_juego.i, 3*ancho_ventana/4, 43*alto_ventana/50+i, 2*ancho_ventana/3, 43*alto_ventana/45, color_escalera);
+
+            }
+
 
             // Asignacion de que PNG pintar segun el estado del jugador.
+            if(tigrKeyHeld(pantalla, 'A')) {
+                personaje.i=tigrLoadImage("./imagenes/caminar_izquierda.png");
+            }
+            else if(tigrKeyHeld(pantalla, 'D')) {
+                personaje.i=tigrLoadImage("./imagenes/caminar_derecha.png");
+            }
+            else if(ultima_direccion=='D') {
+                personaje.i=tigrLoadImage("./imagenes/estatico_derecha.png");
+            }
+            else if(ultima_direccion=='I') {
+                personaje.i=tigrLoadImage("./imagenes/estatico_izquierda.png");
+            }
             // Pinta el jugador por pantalla.
             tigrBlitAlpha(pantalla_juego.i, personaje.i, personaje.x, personaje.y, 0, 0, personaje.w, personaje.h, 1);
         }
