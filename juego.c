@@ -609,7 +609,7 @@ int selector_de_niveles() {
 }
 int main() {
     // Establecimiento de la primera pantalla en abrirse.
-    int caso=2;
+    int caso=0;
     // Establecimiento de las dimensiones de la ventana del juego.
     int ancho_ventana=400, alto_ventana=450;
     // Establecimieto de la velocidad de cierre de las diferentes pantallas del juego.
