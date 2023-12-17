@@ -15,12 +15,58 @@ typedef struct {
     TLista_coordenadas escaleras;
     TLista_coordenadas plataformas;
 } TNiveles;
+typedef struct {
+    TCoordenadas barriles;
+    char direccion;
+    int cantidad_movimiento;
+    float resguardo;
+    bool caida;
+    float velocidad_caida;
+    float resguardo_gravedad;
+    int ultima_posicion_y;
+} TBarriles;
+typedef TBarriles TLista_barriles[15];
 float Calcular_Tiempo() {
     float tiempo_inicial=0, tiempo_final=0, tiempo_total=0;
     tiempo_final=tigrTime();
     tiempo_total=(tiempo_final-tiempo_inicial);
     tiempo_inicial=tigrTime();
     return tiempo_total;
+}
+// Modulo que pinta el titulo y la sombra.
+void pintar_titulo_y_sombra(Tigr *transparencia_titulo, TPixel cuerpo_o_sombra) {
+    int i;
+    for(i=0; i<10; i++) {
+                    // La letra P.
+                    tigrLine(transparencia_titulo, 0+i, 40, 10+i, 0, cuerpo_o_sombra);
+                    tigrLine(transparencia_titulo, 10, 0+i, 40-i, 0+i, cuerpo_o_sombra);
+                    tigrLine(transparencia_titulo, 40-i, 0, 33-i, 30, cuerpo_o_sombra);
+                    tigrLine(transparencia_titulo, 33, 30-i, 10, 30-i, cuerpo_o_sombra);
+                    // La letra I.
+                    tigrLine(transparencia_titulo, 40+i, 40, 50+i, 0, cuerpo_o_sombra);
+                    // La letra G.
+                    tigrLine(transparencia_titulo, 60+i, 40, 70+i, 0, cuerpo_o_sombra);
+                    tigrLine(transparencia_titulo, 60+i, 40-i, 90, 40-i, cuerpo_o_sombra);
+                    tigrLine(transparencia_titulo, 90-i, 40, 95-i, 20, cuerpo_o_sombra);
+                    tigrLine(transparencia_titulo, 70, 0+i, 95, 0+i, cuerpo_o_sombra);
+                    tigrLine(transparencia_titulo, 100-i, 0, 97-i, 10, cuerpo_o_sombra);
+                    // La letra K.
+                    tigrLine(transparencia_titulo, 110+i, 40, 120+i, 0, cuerpo_o_sombra);
+                    tigrLine(transparencia_titulo, 123+i, 20, 130+i, 40, cuerpo_o_sombra);
+                    tigrLine(transparencia_titulo, 123+i, 20, 140+i, 0, cuerpo_o_sombra);
+                    // La letra I.
+                    tigrLine(transparencia_titulo, 150+i, 40, 160+i, 0, cuerpo_o_sombra);
+                    // La letra N.
+                    tigrLine(transparencia_titulo, 170+i, 40, 180+i, 0, cuerpo_o_sombra);
+                    tigrLine(transparencia_titulo, 180+i, 0, 190+i, 40, cuerpo_o_sombra);
+                    tigrLine(transparencia_titulo, 190+i, 40, 200+i, 0, cuerpo_o_sombra);
+                    // La letra G.
+                    tigrLine(transparencia_titulo, 210+i, 40, 220+i, 0, cuerpo_o_sombra);
+                    tigrLine(transparencia_titulo, 210+i, 40-i, 240, 40-i, cuerpo_o_sombra);
+                    tigrLine(transparencia_titulo, 240-i, 40, 245-i, 20, cuerpo_o_sombra);
+                    tigrLine(transparencia_titulo, 220, 0+i, 245, 0+i, cuerpo_o_sombra);
+                    tigrLine(transparencia_titulo, 250-i, 0, 247-i, 10, cuerpo_o_sombra);
+                }
 }
 // Modulo que muestra el menu.
 int menu(Tigr *pantalla, int ancho_ventana, int alto_ventana, float velocidad_ending) {
@@ -238,37 +284,8 @@ int menu(Tigr *pantalla, int ancho_ventana, int alto_ventana, float velocidad_en
                     transparencia_titulo=titulo.i;
                     cuerpo_o_sombra=tema_actual;
                 }
-                for(j=0; j<10; j++) {
-                    // La letra P.
-                    tigrLine(transparencia_titulo, 0+j, 40, 10+j, 0, cuerpo_o_sombra);
-                    tigrLine(transparencia_titulo, 10, 0+j, 40-j, 0+j, cuerpo_o_sombra);
-                    tigrLine(transparencia_titulo, 40-j, 0, 33-j, 30, cuerpo_o_sombra);
-                    tigrLine(transparencia_titulo, 33, 30-j, 10, 30-j, cuerpo_o_sombra);
-                    // La letra I.
-                    tigrLine(transparencia_titulo, 40+j, 40, 50+j, 0, cuerpo_o_sombra);
-                    // La letra G.
-                    tigrLine(transparencia_titulo, 60+j, 40, 70+j, 0, cuerpo_o_sombra);
-                    tigrLine(transparencia_titulo, 60+j, 40-j, 90, 40-j, cuerpo_o_sombra);
-                    tigrLine(transparencia_titulo, 90-j, 40, 95-j, 20, cuerpo_o_sombra);
-                    tigrLine(transparencia_titulo, 70, 0+j, 95, 0+j, cuerpo_o_sombra);
-                    tigrLine(transparencia_titulo, 100-j, 0, 97-j, 10, cuerpo_o_sombra);
-                    // La letra K.
-                    tigrLine(transparencia_titulo, 110+j, 40, 120+j, 0, cuerpo_o_sombra);
-                    tigrLine(transparencia_titulo, 123+j, 20, 130+j, 40, cuerpo_o_sombra);
-                    tigrLine(transparencia_titulo, 123+j, 20, 140+j, 0, cuerpo_o_sombra);
-                    // La letra I.
-                    tigrLine(transparencia_titulo, 150+j, 40, 160+j, 0, cuerpo_o_sombra);
-                    // La letra N.
-                    tigrLine(transparencia_titulo, 170+j, 40, 180+j, 0, cuerpo_o_sombra);
-                    tigrLine(transparencia_titulo, 180+j, 0, 190+j, 40, cuerpo_o_sombra);
-                    tigrLine(transparencia_titulo, 190+j, 40, 200+j, 0, cuerpo_o_sombra);
-                    // La letra G.
-                    tigrLine(transparencia_titulo, 210+j, 40, 220+j, 0, cuerpo_o_sombra);
-                    tigrLine(transparencia_titulo, 210+j, 40-j, 240, 40-j, cuerpo_o_sombra);
-                    tigrLine(transparencia_titulo, 240-j, 40, 245-j, 20, cuerpo_o_sombra);
-                    tigrLine(transparencia_titulo, 220, 0+j, 245, 0+j, cuerpo_o_sombra);
-                    tigrLine(transparencia_titulo, 250-j, 0, 247-j, 10, cuerpo_o_sombra);
-                }
+                // Pintar titulo y sombra.
+                pintar_titulo_y_sombra(transparencia_titulo, cuerpo_o_sombra);
             }
             tigrFill(pantalla_menu.i, plantilla.x, plantilla.y, plantilla.w, plantilla.h, color_azul);
             // Maco plantilla.
@@ -306,7 +323,7 @@ int menu(Tigr *pantalla, int ancho_ventana, int alto_ventana, float velocidad_en
                 tigrPrint(pantalla_menu.i, tfont, 6.6*ancho_ventana/16 , 12.85*alto_ventana/16, tema_boton_puntuacion, "PUNTUACIÓN", 0);
             }
             // Texto de los creditos.
-            tigrPrint(pantalla_menu.i, tfont, 5, alto_ventana-15, tigrRGB(225, 225, 225), "Hecho por: Alexander Veldemar, Danil Launov y Andres Maciá.", 0);
+            tigrPrint(pantalla_menu.i, tfont, 5, alto_ventana-15, tigrRGB(225, 225, 225), "Hecho por: Alexander Veldemar, Danil Launov y Andrés Maciá.", 0);
             // Pinta cursor personalizado.
             tigrBlitAlpha(pantalla_menu.i, cursor.i, cursor.x, cursor.y, 0, 0, 32, 32, 1);
         }
@@ -439,7 +456,6 @@ void pintar_estructuras_nivel1(Tigr *pantalla_juego, int ancho_ventana, int alto
     tigrLine(pantalla_juego, 0, alto_ventana-1-i, ancho_ventana, alto_ventana-1-i, color_solido);
     }
 }
-
 bool ver_escalera(TCoordenadas personaje, TLista_coordenadas escaleras) { // Modulo para saber si estas en una escalera.
     int i;
     
@@ -450,43 +466,85 @@ bool ver_escalera(TCoordenadas personaje, TLista_coordenadas escaleras) { // Mod
     }
     return false;
 }
-int juego(Tigr *pantalla, int ancho_ventana, int alto_ventana, float velocidad_ending) {
-    TCoordenadas pantalla_juego, personaje;
-    TNiveles nivel1;
-    // Coordenadas y dimensiones de las escaleas del nivel 1.
-    nivel1.escaleras[0].x=43*ancho_ventana/50, nivel1.escaleras[0].y=44*alto_ventana/50,nivel1.escaleras[0].w=3*ancho_ventana/50, nivel1.escaleras[0].h= 6*alto_ventana/50; 
-    nivel1.escaleras[1].x=5*ancho_ventana/50, nivel1.escaleras[1].y=39*alto_ventana/50,nivel1.escaleras[1].w=3*ancho_ventana/50, nivel1.escaleras[1].h= 5*alto_ventana/50-1; 
-    nivel1.escaleras[2].x=43*ancho_ventana/50, nivel1.escaleras[2].y=32*alto_ventana/50,nivel1.escaleras[2].w=3*ancho_ventana/50+2, nivel1.escaleras[2].h= 6*alto_ventana/50-1; 
-    nivel1.escaleras[3].x=25*ancho_ventana/50, nivel1.escaleras[3].y=33*alto_ventana/50,nivel1.escaleras[3].w=3*ancho_ventana/50, nivel1.escaleras[3].h= 5*alto_ventana/50+3; 
-    nivel1.escaleras[4].x=5*ancho_ventana/50, nivel1.escaleras[4].y=22*alto_ventana/50,nivel1.escaleras[4].w=3*ancho_ventana/50, nivel1.escaleras[4].h= 5*alto_ventana/50; 
-    nivel1.escaleras[5].x=16*ancho_ventana/50, nivel1.escaleras[5].y=15*alto_ventana/50,nivel1.escaleras[5].w=3*ancho_ventana/50, nivel1.escaleras[5].h= 1*alto_ventana/50; 
-    nivel1.escaleras[6].x=16*ancho_ventana/50, nivel1.escaleras[6].y=20*alto_ventana/50,nivel1.escaleras[6].w=3*ancho_ventana/50, nivel1.escaleras[6].h= 1*alto_ventana/50-2; 
-    nivel1.escaleras[7].x=43*ancho_ventana/50, nivel1.escaleras[7].y=15*alto_ventana/50,nivel1.escaleras[7].w=3*ancho_ventana/50, nivel1.escaleras[7].h= 5*alto_ventana/50-1; 
-    nivel1.escaleras[8].x=12*ancho_ventana/50, nivel1.escaleras[8].y=10*alto_ventana/50,nivel1.escaleras[8].w=3*ancho_ventana/50, nivel1.escaleras[8].h= 5*alto_ventana/50-1; 
+// Modulo encargado de pintar los barriles.
+void pintar_barriles(Tigr *pantalla_juego, int numero_barriles, TLista_barriles nivel1_barriles) {
+    int i;
 
+    for(i=0; i<numero_barriles; i++) {
+        tigrBlitAlpha(pantalla_juego, nivel1_barriles[i].barriles.i, nivel1_barriles[i].barriles.x, nivel1_barriles[i].barriles.y, 0, 0, nivel1_barriles[i].barriles.w, nivel1_barriles[i].barriles.h, 1);
+    }
+}
 
+void barra_juego(Tigr *pantalla_juego, int ancho_ventana, int alto_ventana, float tiempo_juego, TPixel color_barrajuego, TPixel color_nombre){
+    TCoordenadas marco;
     
-    personaje.x=ancho_ventana/2, personaje.y=alto_ventana/2, personaje.w=18, personaje.h=28;
-    personaje.i = tigrLoadImage("./imagenes/personaje.png");
-    int caso, i, ultima_posicion_y, ultima_posicion_x;
-    float tiempo_total=0, resguardo_gravedad, gravedad, velocidad_caida, resguardo_movimiento, resguardo_escalera, cantidad_movimiento;
+    float minutos_juego=0, segundos_juego=0;
+    
+    
+    if (tiempo_juego < 60) {
+        minutos_juego = 0;
+        segundos_juego = tiempo_juego;
+    } 
+    else {
+        minutos_juego = tiempo_juego / 60;    
+        segundos_juego = tiempo_juego - minutos_juego * 60;   
+    }
+    
+    marco.x=0, marco.y=0, marco.w=ancho_ventana, marco.h=35;
+    tigrFill(pantalla_juego, marco.x, marco.y, marco.w, marco.h, color_barrajuego);
+
+    tigrPrint(pantalla_juego, tfont, 2*ancho_ventana/50, 2*alto_ventana/50, color_nombre, "Nombre del jugador:", 1);
+    tigrPrint(pantalla_juego, tfont, 25*ancho_ventana/50, 2*alto_ventana/50, color_nombre, "Tiempo de juego:", 1);
+    tigrPrint(pantalla_juego, tfont, 38*ancho_ventana/50, 2*alto_ventana/50, color_nombre, "%02.0f", minutos_juego);
+    tigrPrint(pantalla_juego, tfont, 40*ancho_ventana/50+2, 2*alto_ventana/50, color_nombre, "%02.0f", segundos_juego);
+    
+    //tigrPrint(pantalla_juego, tfont, 7*ancho_ventana/50, 2*alto_ventana/50, color_nombre,"%s", nombre);
+}
+
+int juego(Tigr *pantalla, int ancho_ventana, int alto_ventana, float velocidad_ending) {
+    TCoordenadas pantalla_juego, personaje, tarta;
+    TNiveles nivel1;
+    TLista_barriles nivel1_barriles;
+
+    int caso, i, j, ultima_posicion_y, ultima_posicion_x, numero_barriles;
+    float tiempo_juego, tiempo_barriles, tiempo_total=0, resguardo_gravedad, gravedad, velocidad_caida, resguardo_movimiento, resguardo_escalera, cantidad_movimiento;
     char ultima_direccion;
     bool cierre, pausa, caida, ending, esta_escalera, colgando;
+    // Coordenadas y dimensiones de las escaleas del nivel 1.
+    for(i=0; i<9; i++) {
+        nivel1.escaleras[i].w=3*ancho_ventana/50;
+    }
+    nivel1.escaleras[0].x=43*ancho_ventana/50, nivel1.escaleras[0].y=44*alto_ventana/50, nivel1.escaleras[0].h= 6*alto_ventana/50; 
+    nivel1.escaleras[1].x=5*ancho_ventana/50, nivel1.escaleras[1].y=39*alto_ventana/50, nivel1.escaleras[1].h= 5*alto_ventana/50-1; 
+    nivel1.escaleras[2].x=43*ancho_ventana/50, nivel1.escaleras[2].y=32*alto_ventana/50, nivel1.escaleras[2].h= 6*alto_ventana/50-1; 
+    nivel1.escaleras[3].x=25*ancho_ventana/50, nivel1.escaleras[3].y=33*alto_ventana/50, nivel1.escaleras[3].h= 5*alto_ventana/50+3; 
+    nivel1.escaleras[4].x=5*ancho_ventana/50, nivel1.escaleras[4].y=22*alto_ventana/50, nivel1.escaleras[4].h= 5*alto_ventana/50; 
+    nivel1.escaleras[5].x=16*ancho_ventana/50, nivel1.escaleras[5].y=15*alto_ventana/50, nivel1.escaleras[5].h= 1*alto_ventana/50; 
+    nivel1.escaleras[6].x=16*ancho_ventana/50, nivel1.escaleras[6].y=20*alto_ventana/50, nivel1.escaleras[6].h= 1*alto_ventana/50-2; 
+    nivel1.escaleras[7].x=43*ancho_ventana/50, nivel1.escaleras[7].y=15*alto_ventana/50, nivel1.escaleras[7].h= 5*alto_ventana/50-1; 
+    nivel1.escaleras[8].x=12*ancho_ventana/50, nivel1.escaleras[8].y=10*alto_ventana/50, nivel1.escaleras[8].h= 5*alto_ventana/50-1; 
+        
+    
+    personaje.x=ancho_ventana/2, personaje.y=alto_ventana/2, personaje.w=18, personaje.h=28;
+    tarta.i=tigrLoadImage("./imagenes/tarta.png"), tarta.x=22*ancho_ventana/50, tarta.y=5*alto_ventana/50, tarta.w=47, tarta.h=45;
     pantalla_juego.x=0, pantalla_juego.y=0, pantalla_juego.w=ancho_ventana, pantalla_juego.h=alto_ventana;
     pantalla_juego.i=tigrBitmap(pantalla_juego.w, pantalla_juego.h);
-    caso=-1, ultima_posicion_y=personaje.y, ultima_posicion_x=personaje.x;
-    resguardo_movimiento=personaje.x, resguardo_escalera=personaje.y, cantidad_movimiento=0, resguardo_gravedad=0, gravedad=900, velocidad_caida=0;
+    caso=-1, ultima_posicion_y=personaje.y, ultima_posicion_x=personaje.x, numero_barriles=0;
+    tiempo_juego, tiempo_barriles=0, resguardo_movimiento=personaje.x, resguardo_escalera=personaje.y, cantidad_movimiento=0, resguardo_gravedad=personaje.y, gravedad=900, velocidad_caida=0;
     ultima_direccion='D';
     // Asignacion de los booleanos.
     cierre=false, pausa=false, caida=true, ending=false, esta_escalera=false, colgando=false;
     // Creacion del color de las estructuras.
-    TPixel color_solido=tigrRGB(69, 33, 217), color_escalera=tigrRGB(30,222,45), color_barra=tigrRGB(120,143,63);
+    TPixel color_solido=tigrRGB(69, 33, 217), color_escalera=tigrRGB(30,222,45), color_barra=tigrRGB(120,143,63), color_barrajuego=tigrRGB(10,103,223), color_nombre=tigrRGB(0,176,3);
     // Creacion de las variables para saber si estamos encima de un solido y si hay rampas.
     TPixel color_mas_abajo, color_debajo, color_medio, color_arriba;
 
     while((!tigrClosed(pantalla)) && (!cierre)) {
         tiempo_total=Calcular_Tiempo();
         if(!pausa) {
+            // Calcula el tiempo de juego.
+            tiempo_juego+=tiempo_total;
+            tiempo_barriles+=tiempo_total;
             // Detecta que direccion que se quiere mover el jugador.
             if((tigrKeyHeld(pantalla, 'A')) && (personaje.x>0)) {
                 cantidad_movimiento=100*tiempo_total;
@@ -512,7 +570,7 @@ int juego(Tigr *pantalla, int ancho_ventana, int alto_ventana, float velocidad_e
             ultima_posicion_x=personaje.x;
             personaje.x=resguardo_movimiento;
             // Que el jugador pueda bajar rampas derecha.
-            if(tigrKeyHeld(pantalla, 'D') && (!caida)) {
+            if((tigrKeyHeld(pantalla, 'D')) && (!caida)) {
                 for(i=ultima_posicion_x; i<=personaje.x; i++) {
                     // Saber si hay solido a la derecha.
                     color_mas_abajo=tigrGet(pantalla, i+personaje.w/2, personaje.y+personaje.h+2);
@@ -528,7 +586,7 @@ int juego(Tigr *pantalla, int ancho_ventana, int alto_ventana, float velocidad_e
                 }
             }
             // Que el jugador pueda bajar rampas izquierda.
-            if(tigrKeyHeld(pantalla, 'A') && (!caida)) {
+            if((tigrKeyHeld(pantalla, 'A')) && (!caida)) {
                 for(i=ultima_posicion_x; i>=personaje.x; i--) {
                     // Saber si hay solido a la izquierda.
                     color_mas_abajo=tigrGet(pantalla, i+personaje.w/2, personaje.y+personaje.h+2);
@@ -549,7 +607,7 @@ int juego(Tigr *pantalla, int ancho_ventana, int alto_ventana, float velocidad_e
                 caida=true;
             }
             // Que el jugador pueda subir rampas derecha.
-            if((!caida) && tigrKeyHeld(pantalla, 'D')) {
+            if((!caida) && (tigrKeyHeld(pantalla, 'D'))) {
                 for(i=ultima_posicion_x; i<personaje.x; i++) {
                     // Saber si hay solido a la derecha.
                     color_medio=tigrGet(pantalla, i+personaje.w/2+1, personaje.y+personaje.h);
@@ -565,7 +623,7 @@ int juego(Tigr *pantalla, int ancho_ventana, int alto_ventana, float velocidad_e
                 }
             }
             // Que el jugador pueda subir rampas izquierda.
-            if((!caida) && tigrKeyHeld(pantalla, 'A')) {
+            if((!caida) && (tigrKeyHeld(pantalla, 'A'))) {
                 for(i=ultima_posicion_x; i>personaje.x; i--) {
                     // Saber si hay solido a la derecha.
                     color_medio=tigrGet(pantalla, i+personaje.w/2-1, personaje.y+personaje.h);
@@ -630,22 +688,89 @@ int juego(Tigr *pantalla, int ancho_ventana, int alto_ventana, float velocidad_e
                     }
                 }
             }
+            // Se llama el modulo para pintar la estructura del juego.
             pintar_estructuras_nivel1(pantalla_juego.i, ancho_ventana, alto_ventana, color_solido, color_escalera, color_barra, nivel1);
+            // Generar nuevo barril.
+            if((tiempo_barriles>4) && (numero_barriles!=15)) {
+                numero_barriles++;
+                tiempo_barriles=0;
+                nivel1_barriles[numero_barriles-1].barriles.i=tigrLoadImage("./imagenes/barril.png"), nivel1_barriles[numero_barriles-1].barriles.x=9*ancho_ventana/50,  nivel1_barriles[numero_barriles-1].barriles.y=13*alto_ventana/50-3 ,  nivel1_barriles[numero_barriles-1].barriles.w=20, nivel1_barriles[numero_barriles-1].barriles.h=20;
+                nivel1_barriles[numero_barriles-1].direccion='D';
+                nivel1_barriles[numero_barriles-1].resguardo=nivel1_barriles[numero_barriles-1].barriles.x;
+                nivel1_barriles[numero_barriles-1].caida=false;
+                nivel1_barriles[numero_barriles-1].velocidad_caida=0;
+                nivel1_barriles[numero_barriles-1].resguardo_gravedad=nivel1_barriles[numero_barriles-1].barriles.y;
+                nivel1_barriles[numero_barriles-1].ultima_posicion_y=nivel1_barriles[numero_barriles-1].barriles.y;
+            }
+            // Desplazamiento de los barriles horizontalmente.
+            for(i=0; i<numero_barriles; i++) {
+                if(!(nivel1_barriles[i].caida)) {
+                    nivel1_barriles[i].cantidad_movimiento=100*tiempo_total;
+                    if(nivel1_barriles[i].direccion=='I'){
+                        nivel1_barriles[i].cantidad_movimiento=(-nivel1_barriles[i].cantidad_movimiento);
+                    }
+                    nivel1_barriles[i].resguardo+=nivel1_barriles[i].cantidad_movimiento;
+                    nivel1_barriles[i].barriles.x=nivel1_barriles[i].resguardo;
+                }
+                // Saber si los barriles estas en el aire o no.
+                color_debajo=tigrGet(pantalla, nivel1_barriles[i].barriles.x+nivel1_barriles[i].barriles.w/2, nivel1_barriles[i].barriles.y+nivel1_barriles[i].barriles.h+1);
+                if((!nivel1_barriles[i].caida) && (color_debajo.r!=color_solido.r) && (color_debajo.g!=color_solido.g) && (color_debajo.b!=color_solido.b)) {
+                    nivel1_barriles[i].caida=true;
+                    if(nivel1_barriles[i].direccion=='D') {
+                        nivel1_barriles[i].direccion='I';
+                    }
+                    else {
+                        nivel1_barriles[i].direccion='D';
+                    }
+                }
+                // Calculo de la gravedad de los barriles.
+                if(nivel1_barriles[i].caida) {
+                    nivel1_barriles[i].velocidad_caida+=gravedad*tiempo_total;
+                    nivel1_barriles[i].resguardo_gravedad+=nivel1_barriles[i].velocidad_caida*tiempo_total;
+                    nivel1_barriles[i].ultima_posicion_y=nivel1_barriles[i].barriles.y;
+                    nivel1_barriles[i].barriles.y=nivel1_barriles[i].resguardo_gravedad;
+                }
+                // Comprobar que en todo el recorrido el barril no se ha chocado con una estructura.
+                if(nivel1_barriles[i].caida) {
+                    for(j=nivel1_barriles[i].ultima_posicion_y; j<=nivel1_barriles[i].barriles.y; j++) {
+                        // Saber si hay solido debajo.
+                        color_debajo=tigrGet(pantalla, nivel1_barriles[i].barriles.x+nivel1_barriles[i].barriles.w/2, j+nivel1_barriles[i].barriles.h+1);
+                        // Saber si estas atravesando solido.
+                        color_medio=tigrGet(pantalla, nivel1_barriles[i].barriles.x+nivel1_barriles[i].barriles.w/2, j+nivel1_barriles[i].barriles.h);
+                        // Colision plataforma.
+                        if((color_debajo.r==color_solido.r) && (color_debajo.g==color_solido.g) && (color_debajo.b==color_solido.b) && (color_medio.r!=color_solido.r) && (color_medio.g!=color_solido.g) && (color_medio.b!=color_solido.b)) {
+                            nivel1_barriles[i].caida=false;
+                            nivel1_barriles[i].velocidad_caida=0;
+                            nivel1_barriles[i].barriles.y=j;
+                            nivel1_barriles[i].resguardo_gravedad=nivel1_barriles[i].barriles.y;
+                            break;
+                        }
+                    }
+                }
+            }
+            // Pinta los barriles.
+            pintar_barriles(pantalla_juego.i, numero_barriles, nivel1_barriles);
+            
             // Asignacion de que PNG pintar segun el estado del jugador.
             if(tigrKeyHeld(pantalla, 'A')) {
-                personaje.i=tigrLoadImage("./imagenes/caminar_izquierda.png");
+                personaje.i=tigrLoadImage("./imagenes/personaje/caminar_izquierda.png");
             }
             else if(tigrKeyHeld(pantalla, 'D')) {
-                personaje.i=tigrLoadImage("./imagenes/caminar_derecha.png");
+                personaje.i=tigrLoadImage("./imagenes/personaje/caminar_derecha.png");
             }
             else if(ultima_direccion=='D') {
-                personaje.i=tigrLoadImage("./imagenes/estatico_derecha.png");
+                personaje.i=tigrLoadImage("./imagenes/personaje/estatico_derecha.png");
             }
             else if(ultima_direccion=='I') {
-                personaje.i=tigrLoadImage("./imagenes/estatico_izquierda.png");
+                personaje.i=tigrLoadImage("./imagenes/personaje/estatico_izquierda.png");
             }
+            // Pinta la tarta.
+            tigrBlitAlpha(pantalla_juego.i, tarta.i, tarta.x, tarta.y, 0, 0, tarta.w, tarta.h, 1);
             // Pinta el jugador por pantalla.
             tigrBlitAlpha(pantalla_juego.i, personaje.i, personaje.x, personaje.y, 0, 0, personaje.w, personaje.h, 1);
+            
+            barra_juego(pantalla_juego.i, ancho_ventana, alto_ventana, tiempo_juego, color_barrajuego, color_nombre);
+            
         }
         // Limpia el fondo de pantalla.
         tigrClear(pantalla, tigrRGB(0, 0, 0));
@@ -666,7 +791,7 @@ int selector_de_niveles() {
 }
 int main() {
     // Establecimiento de la primera pantalla en abrirse.
-    int caso=2;
+    int caso=0;
     // Establecimiento de las dimensiones de la ventana del juego.
     int ancho_ventana=400, alto_ventana=450;
     // Establecimieto de la velocidad de cierre de las diferentes pantallas del juego.
