@@ -71,7 +71,7 @@ void pintar_titulo_y_sombra(Tigr *transparencia_titulo, TPixel cuerpo_o_sombra) 
 // Modulo que muestra el menu.
 int menu(Tigr *pantalla, int ancho_ventana, int alto_ventana, float velocidad_ending) {
     TCoordenadas cursor, cortina, plantilla, titulo, sombra, boton_jugar, boton_niveles, boton_puntuacion, pantalla_menu;
-    
+   
     pantalla_menu.x=0, pantalla_menu.y=0, pantalla_menu.w=ancho_ventana, pantalla_menu.h=alto_ventana;
     pantalla_menu.i=tigrBitmap(pantalla_menu.w, pantalla_menu.h);
 
@@ -107,14 +107,14 @@ int menu(Tigr *pantalla, int ancho_ventana, int alto_ventana, float velocidad_en
     tiempo_total=0, tiempo_animacion=0, tiempo_parpadeo=0, tiempo_botones=0;
     // Asignacion de los booleanos.
     plantilla_terminada=false, cierre=false, permitido=false, opening=true, ending=false;
-    
-    
+   
+   
     while((!cierre) && !tigrClosed(pantalla)) {
         // Calculo del tiempo que tarda el ordenador en ejecutar un ciclo del programa.
         tiempo_total=Calcular_Tiempo();
         tiempo_animacion+=tiempo_total;
         // Efecto de bote de la cortina del titulo.
-        if((resguardo==(2*alto_ventana/8)) && (velocidad_titulo>0) && (botes!=4)) { 
+        if((resguardo==(2*alto_ventana/8)) && (velocidad_titulo>0) && (botes!=4)) {
             velocidad_titulo=-velocidad_titulo*0.7;
             botes++;
         }
@@ -170,7 +170,7 @@ int menu(Tigr *pantalla, int ancho_ventana, int alto_ventana, float velocidad_en
                             tiempo_botones=0;
                             aparicion_botones=2;
                         }
-                        
+                       
                         break;
                 // Aparicion del boton Niveles.
                 case 2: boton_niveles.w=9*ancho_ventana/16;
@@ -337,13 +337,12 @@ int menu(Tigr *pantalla, int ancho_ventana, int alto_ventana, float velocidad_en
     }
     return seleccion;
 }
-int poner_nombre(Tigr *pantalla, int ancho_ventana, int alto_ventana, float velocidad_ending) {
+int poner_nombre(Tigr *pantalla, int ancho_ventana, int alto_ventana, char nombre[11],float velocidad_ending) {
     TCoordenadas pantalla_nombre;
     // Asignacion de las coordenadas y las dimensiones de la pantalla de cambiar nombre.
     pantalla_nombre.x=0, pantalla_nombre.y=0, pantalla_nombre.w=ancho_ventana, pantalla_nombre.h=alto_ventana;
     pantalla_nombre.i=tigrBitmap(pantalla_nombre.w, pantalla_nombre.h);
     // Creacion de la variable que guarda el nombre del jugador.
-    char nombre[11];
     // Creacion de las diversas variables de tipo entero.
     int elevacion_cierre, tecla, i, posicion_escritura, caso;
     // Creacion de los diferentes controladores de tiempo.
@@ -396,7 +395,7 @@ int poner_nombre(Tigr *pantalla, int ancho_ventana, int alto_ventana, float velo
         }
         // Limpia el fondo de la pantalla.
         tigrClear(pantalla, tigrRGB(0, 0, 0));
-        
+       
         // Integracion de la pantalla de cambiar nombre a la pantalla del programa y elevacion de cierre.
         tigrBlitAlpha(pantalla, pantalla_nombre.i, pantalla_nombre.x, pantalla_nombre.y, 0, 0, pantalla_nombre.w, pantalla_nombre.h, 1);
         if(!ending) {
@@ -414,8 +413,8 @@ int poner_nombre(Tigr *pantalla, int ancho_ventana, int alto_ventana, float velo
 void pintar_estructuras_nivel1(Tigr *pantalla_juego, int ancho_ventana, int alto_ventana,TPixel color_solido, TPixel color_escalera, TPixel color_barra,TNiveles nivel1) {
     int i, j;
     //Pintar plataformas.
-    for(i=0; i<6; i++) { 
-        //1ª plataforma.   
+    for(i=0; i<6; i++) {
+        //1ª plataforma.  
         tigrLine(pantalla_juego, 4*ancho_ventana/50, 44*alto_ventana/50+i, 47*ancho_ventana/50, 44*alto_ventana/50+i, color_solido);
         //2ª plataforma
         tigrLine(pantalla_juego, 4*ancho_ventana/50, 39*alto_ventana/50+i, 47*ancho_ventana/50, 38*alto_ventana/50+i, color_solido);
@@ -449,7 +448,7 @@ void pintar_estructuras_nivel1(Tigr *pantalla_juego, int ancho_ventana, int alto
             tigrLine(pantalla_juego, nivel1.escaleras[i].x-j, nivel1.escaleras[i].y+nivel1.escaleras[i].h, nivel1.escaleras[i].x-j, nivel1.escaleras[i].y, color_escalera);
             tigrLine(pantalla_juego, nivel1.escaleras[i].x+nivel1.escaleras[i].w-j, nivel1.escaleras[i].y+nivel1.escaleras[i].h, nivel1.escaleras[i].x+nivel1.escaleras[i].w-j, nivel1.escaleras[i].y, color_escalera);
         }
-        
+       
     }
     // Pintar base del juego.
     for(i=0; i<1; i++) {
@@ -458,7 +457,7 @@ void pintar_estructuras_nivel1(Tigr *pantalla_juego, int ancho_ventana, int alto
 }
 bool ver_escalera(TCoordenadas personaje, TLista_coordenadas escaleras) { // Modulo para saber si estas en una escalera.
     int i;
-    
+   
     for(i=0; i<9; i++) {
         if(((personaje.x+(personaje.w/2))>escaleras[i].x) && ((personaje.x+(personaje.w/2))<(escaleras[i].x+escaleras[i].w)) && ((personaje.y+(3*personaje.h/4))>escaleras[i].y) && ((personaje.y+(3*personaje.h/4))<(escaleras[i].y+escaleras[i].h))) {
             return true;
@@ -475,33 +474,47 @@ void pintar_barriles(Tigr *pantalla_juego, int numero_barriles, TLista_barriles 
     }
 }
 
-void barra_juego(Tigr *pantalla_juego, int ancho_ventana, int alto_ventana, float tiempo_juego, TPixel color_barrajuego, TPixel color_nombre){
+void barra_juego(Tigr *pantalla_juego, int ancho_ventana, int alto_ventana, char nombre[11],float tiempo_juego, TPixel color_barrajuego, TPixel color_texto, TPixel color_barrajuego2){
+   
     TCoordenadas marco;
-    
+   
     float minutos_juego=0, segundos_juego=0;
-    
-    
-    if (tiempo_juego < 60) {
-        minutos_juego = 0;
-        segundos_juego = tiempo_juego;
-    } 
-    else {
-        minutos_juego = tiempo_juego / 60;    
-        segundos_juego = tiempo_juego - minutos_juego * 60;   
+    int i;
+   
+    // Calcula el tiempo que pasa en minutos y segundos.
+   
+   
+    /*
+    if(tiempo_juego<60){
+        minutos_juego=0;
+        segundos_juego=tiempo_juego;
     }
-    
-    marco.x=0, marco.y=0, marco.w=ancho_ventana, marco.h=35;
+    else{
+    minutos_juego=tiempo_juego/60;
+    segundos_juego=tiempo_juego-(minutos_juego*60);
+    }
+    */
+    // Rectangulo de la barra de juego.
+    marco.x=0, marco.y=0, marco.w=ancho_ventana, marco.h=36;
     tigrFill(pantalla_juego, marco.x, marco.y, marco.w, marco.h, color_barrajuego);
 
-    tigrPrint(pantalla_juego, tfont, 2*ancho_ventana/50, 2*alto_ventana/50, color_nombre, "Nombre del jugador:", 1);
-    tigrPrint(pantalla_juego, tfont, 25*ancho_ventana/50, 2*alto_ventana/50, color_nombre, "Tiempo de juego:", 1);
-    tigrPrint(pantalla_juego, tfont, 38*ancho_ventana/50, 2*alto_ventana/50, color_nombre, "%02.0f", minutos_juego);
-    tigrPrint(pantalla_juego, tfont, 40*ancho_ventana/50+2, 2*alto_ventana/50, color_nombre, "%02.0f", segundos_juego);
-    
-    //tigrPrint(pantalla_juego, tfont, 7*ancho_ventana/50, 2*alto_ventana/50, color_nombre,"%s", nombre);
+    tigrPrint(pantalla_juego, tfont, 2*ancho_ventana/50, 2*alto_ventana/50, color_texto, "Nombre del jugador:", 1);
+    tigrPrint(pantalla_juego, tfont, 31*ancho_ventana/50, 2*alto_ventana/50, color_texto, "Tiempo de juego", 1);
+    tigrPrint(pantalla_juego, tfont, 44*ancho_ventana/50, 2*alto_ventana/50, color_texto, "%02.0f:", minutos_juego);
+    tigrPrint(pantalla_juego, tfont, 46*ancho_ventana/50+2, 2*alto_ventana/50, color_texto, "%02.0f", segundos_juego);
+   
+    // Marco del rectangulo de la barra de juego.
+    for(i=0;i<2;i++){
+    tigrLine(pantalla_juego, 0, 4*alto_ventana/50+i, ancho_ventana, 4*alto_ventana/50+i, color_barrajuego2);
+    tigrLine(pantalla_juego, 0+i, 0, 0+i, 4*alto_ventana/50, color_barrajuego2);
+    tigrLine(pantalla_juego, ancho_ventana-2+i, 0, ancho_ventana-2+i, 4*alto_ventana/50, color_barrajuego2);
+    tigrLine(pantalla_juego, 0, 0+i, ancho_ventana, 0+i, color_barrajuego2);
+    }
+   
+    tigrPrint(pantalla_juego, tfont, 18*ancho_ventana/50, 2*alto_ventana/50, color_texto,"%s", nombre);
 }
 
-int juego(Tigr *pantalla, int ancho_ventana, int alto_ventana, float velocidad_ending) {
+int juego(Tigr *pantalla, int ancho_ventana, int alto_ventana, char nombre[11],float velocidad_ending) {
     TCoordenadas pantalla_juego, personaje, tarta;
     TNiveles nivel1;
     TLista_barriles nivel1_barriles;
@@ -510,21 +523,22 @@ int juego(Tigr *pantalla, int ancho_ventana, int alto_ventana, float velocidad_e
     float tiempo_juego, tiempo_barriles, tiempo_total=0, resguardo_gravedad, gravedad, velocidad_caida, resguardo_movimiento, resguardo_escalera, cantidad_movimiento;
     char ultima_direccion;
     bool cierre, pausa, caida, ending, esta_escalera, colgando;
+   
     // Coordenadas y dimensiones de las escaleas del nivel 1.
     for(i=0; i<9; i++) {
         nivel1.escaleras[i].w=3*ancho_ventana/50;
     }
-    nivel1.escaleras[0].x=43*ancho_ventana/50, nivel1.escaleras[0].y=44*alto_ventana/50, nivel1.escaleras[0].h= 6*alto_ventana/50; 
-    nivel1.escaleras[1].x=5*ancho_ventana/50, nivel1.escaleras[1].y=39*alto_ventana/50, nivel1.escaleras[1].h= 5*alto_ventana/50-1; 
-    nivel1.escaleras[2].x=43*ancho_ventana/50, nivel1.escaleras[2].y=32*alto_ventana/50, nivel1.escaleras[2].h= 6*alto_ventana/50-1; 
-    nivel1.escaleras[3].x=25*ancho_ventana/50, nivel1.escaleras[3].y=33*alto_ventana/50, nivel1.escaleras[3].h= 5*alto_ventana/50+3; 
-    nivel1.escaleras[4].x=5*ancho_ventana/50, nivel1.escaleras[4].y=22*alto_ventana/50, nivel1.escaleras[4].h= 5*alto_ventana/50; 
-    nivel1.escaleras[5].x=16*ancho_ventana/50, nivel1.escaleras[5].y=15*alto_ventana/50, nivel1.escaleras[5].h= 1*alto_ventana/50; 
-    nivel1.escaleras[6].x=16*ancho_ventana/50, nivel1.escaleras[6].y=20*alto_ventana/50, nivel1.escaleras[6].h= 1*alto_ventana/50-2; 
-    nivel1.escaleras[7].x=43*ancho_ventana/50, nivel1.escaleras[7].y=15*alto_ventana/50, nivel1.escaleras[7].h= 5*alto_ventana/50-1; 
-    nivel1.escaleras[8].x=12*ancho_ventana/50, nivel1.escaleras[8].y=10*alto_ventana/50, nivel1.escaleras[8].h= 5*alto_ventana/50-1; 
-        
-    
+    nivel1.escaleras[0].x=43*ancho_ventana/50, nivel1.escaleras[0].y=44*alto_ventana/50, nivel1.escaleras[0].h= 6*alto_ventana/50;
+    nivel1.escaleras[1].x=5*ancho_ventana/50, nivel1.escaleras[1].y=39*alto_ventana/50, nivel1.escaleras[1].h= 5*alto_ventana/50-1;
+    nivel1.escaleras[2].x=43*ancho_ventana/50, nivel1.escaleras[2].y=32*alto_ventana/50, nivel1.escaleras[2].h= 6*alto_ventana/50-1;
+    nivel1.escaleras[3].x=25*ancho_ventana/50, nivel1.escaleras[3].y=33*alto_ventana/50, nivel1.escaleras[3].h= 5*alto_ventana/50+3;
+    nivel1.escaleras[4].x=5*ancho_ventana/50, nivel1.escaleras[4].y=22*alto_ventana/50, nivel1.escaleras[4].h= 5*alto_ventana/50;
+    nivel1.escaleras[5].x=16*ancho_ventana/50, nivel1.escaleras[5].y=15*alto_ventana/50, nivel1.escaleras[5].h= 1*alto_ventana/50;
+    nivel1.escaleras[6].x=16*ancho_ventana/50, nivel1.escaleras[6].y=20*alto_ventana/50, nivel1.escaleras[6].h= 1*alto_ventana/50-2;
+    nivel1.escaleras[7].x=43*ancho_ventana/50, nivel1.escaleras[7].y=15*alto_ventana/50, nivel1.escaleras[7].h= 5*alto_ventana/50-1;
+    nivel1.escaleras[8].x=12*ancho_ventana/50, nivel1.escaleras[8].y=10*alto_ventana/50, nivel1.escaleras[8].h= 5*alto_ventana/50-1;
+       
+   
     personaje.x=ancho_ventana/2, personaje.y=alto_ventana/2, personaje.w=18, personaje.h=28;
     tarta.i=tigrLoadImage("./imagenes/tarta.png"), tarta.x=22*ancho_ventana/50, tarta.y=5*alto_ventana/50, tarta.w=47, tarta.h=45;
     pantalla_juego.x=0, pantalla_juego.y=0, pantalla_juego.w=ancho_ventana, pantalla_juego.h=alto_ventana;
@@ -535,7 +549,9 @@ int juego(Tigr *pantalla, int ancho_ventana, int alto_ventana, float velocidad_e
     // Asignacion de los booleanos.
     cierre=false, pausa=false, caida=true, ending=false, esta_escalera=false, colgando=false;
     // Creacion del color de las estructuras.
-    TPixel color_solido=tigrRGB(69, 33, 217), color_escalera=tigrRGB(30,222,45), color_barra=tigrRGB(120,143,63), color_barrajuego=tigrRGB(10,103,223), color_nombre=tigrRGB(0,176,3);
+    TPixel color_solido=tigrRGB(69, 33, 217), color_escalera=tigrRGB(30,222,45), color_barra=tigrRGB(120,143,63);
+    // Colores para la barra de juego.
+    TPixel color_barrajuego=tigrRGB(4,39,195), color_texto=tigrRGB(255,255,255), color_barrajuego2=tigrRGB(144,144,255);
     // Creacion de las variables para saber si estamos encima de un solido y si hay rampas.
     TPixel color_mas_abajo, color_debajo, color_medio, color_arriba;
 
@@ -750,7 +766,7 @@ int juego(Tigr *pantalla, int ancho_ventana, int alto_ventana, float velocidad_e
             }
             // Pinta los barriles.
             pintar_barriles(pantalla_juego.i, numero_barriles, nivel1_barriles);
-            
+           
             // Asignacion de que PNG pintar segun el estado del jugador.
             if(tigrKeyHeld(pantalla, 'A')) {
                 personaje.i=tigrLoadImage("./imagenes/personaje/caminar_izquierda.png");
@@ -768,9 +784,9 @@ int juego(Tigr *pantalla, int ancho_ventana, int alto_ventana, float velocidad_e
             tigrBlitAlpha(pantalla_juego.i, tarta.i, tarta.x, tarta.y, 0, 0, tarta.w, tarta.h, 1);
             // Pinta el jugador por pantalla.
             tigrBlitAlpha(pantalla_juego.i, personaje.i, personaje.x, personaje.y, 0, 0, personaje.w, personaje.h, 1);
-            
-            barra_juego(pantalla_juego.i, ancho_ventana, alto_ventana, tiempo_juego, color_barrajuego, color_nombre);
-            
+           
+            barra_juego(pantalla_juego.i, ancho_ventana, alto_ventana, nombre,tiempo_juego, color_barrajuego, color_texto, color_barrajuego2);
+           
         }
         // Limpia el fondo de pantalla.
         tigrClear(pantalla, tigrRGB(0, 0, 0));
@@ -791,12 +807,13 @@ int selector_de_niveles() {
 }
 int main() {
     // Establecimiento de la primera pantalla en abrirse.
-    int caso=0;
+    int caso=2;
     // Establecimiento de las dimensiones de la ventana del juego.
     int ancho_ventana=400, alto_ventana=450;
     // Establecimieto de la velocidad de cierre de las diferentes pantallas del juego.
     float velocidad_cierre=800;
     Tigr *pantalla;
+    char nombre[11];
 
 
     printf("Se esta abriendo la ventana del juego...");
@@ -810,11 +827,11 @@ int main() {
         switch(caso) {
             case 0: caso=menu(pantalla, ancho_ventana, alto_ventana, velocidad_cierre);
                     break;
-            case 1: caso=poner_nombre(pantalla, ancho_ventana, alto_ventana, velocidad_cierre);
+            case 1: caso=poner_nombre(pantalla, ancho_ventana, alto_ventana, nombre, velocidad_cierre);
                     break;
-            case 2: caso=juego(pantalla, ancho_ventana, alto_ventana, velocidad_cierre);
+            case 2: caso=juego(pantalla, ancho_ventana, alto_ventana, nombre,velocidad_cierre);
                     break;
-            case 3: 
+            case 3:
                     break;
         }
     } while(caso!=-1);
