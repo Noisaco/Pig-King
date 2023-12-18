@@ -418,7 +418,11 @@ void pintar_estructuras_nivel1(Tigr *pantalla_estructura, int ancho_ventana, int
     //Pintar plataformas.
     for(i=0; i<6; i++) {
         //1ª plataforma.  
+<<<<<<< HEAD
         tigrLine(pantalla_estructura, 4*ancho_ventana/50, 44*alto_ventana/50+i, 47*ancho_ventana/50, 44*alto_ventana/50+i, color_solido);
+=======
+        tigrLine(pantalla_juego, 4*ancho_ventana/50, 44*alto_ventana/50+i, 47*ancho_ventana/50, 44*alto_ventana/50+i, color_solido);
+>>>>>>> 80ea873acc3d63beabdb3227194d913e03ba1904
         //2ª plataforma
         tigrLine(pantalla_estructura, 4*ancho_ventana/50, 39*alto_ventana/50+i, 47*ancho_ventana/50, 38*alto_ventana/50+i, color_solido);
         //3ª plataforma
@@ -476,6 +480,7 @@ void pintar_barriles(Tigr *pantalla_juego, int numero_barriles, TLista_barriles 
         tigrBlitAlpha(pantalla_juego, barriles[i].coordenadas.i, barriles[i].coordenadas.x, barriles[i].coordenadas.y, 0, 0, barriles[i].coordenadas.w, barriles[i].coordenadas.h, 1);
     }
 }
+<<<<<<< HEAD
 void barra_juego(Tigr *pantalla_juego, int ancho_ventana, int alto_ventana, char nombre[11],float tiempo_juego, TPixel color_barrajuego, TPixel color_texto, TPixel color_barrajuego2) {
    
     TCoordenadas marco;
@@ -483,14 +488,44 @@ void barra_juego(Tigr *pantalla_juego, int ancho_ventana, int alto_ventana, char
 
     int minutos_juego=(int)(tiempo_juego/60), segundos_juego=(int)tiempo_juego%60;
    
+=======
+
+void barra_juego(Tigr *pantalla_juego, int ancho_ventana, int alto_ventana, char nombre[11],float tiempo_juego, TPixel color_barrajuego, TPixel color_texto, TPixel color_barrajuego2){
+   
+    TCoordenadas marco;
+   
+    float minutos_juego=0, segundos_juego=0;
+    int i;
+   
+    // Calcula el tiempo que pasa en minutos y segundos.
+   
+   
+    /*
+    if(tiempo_juego<60){
+        minutos_juego=0;
+        segundos_juego=tiempo_juego;
+    }
+    else{
+    minutos_juego=tiempo_juego/60;
+    segundos_juego=tiempo_juego-(minutos_juego*60);
+    }
+    */
+>>>>>>> 80ea873acc3d63beabdb3227194d913e03ba1904
     // Rectangulo de la barra de juego.
     marco.x=0, marco.y=0, marco.w=ancho_ventana, marco.h=36;
     tigrFill(pantalla_juego, marco.x, marco.y, marco.w, marco.h, color_barrajuego);
 
+<<<<<<< HEAD
     tigrPrint(pantalla_juego, tfont, 2*ancho_ventana/50, 2*alto_ventana/53, color_texto,"%s", nombre);
     tigrPrint(pantalla_juego, tfont, 38*ancho_ventana/50, 2*alto_ventana/53, color_texto, "Tiempo:", 1);
     tigrPrint(pantalla_juego, tfont, 44*ancho_ventana/50, 2*alto_ventana/53, color_texto, "%02d:", minutos_juego);
     tigrPrint(pantalla_juego, tfont, 46*ancho_ventana/50+2, 2*alto_ventana/53, color_texto, "%02d", segundos_juego);
+=======
+    tigrPrint(pantalla_juego, tfont, 2*ancho_ventana/50, 2*alto_ventana/50, color_texto, "Nombre del jugador:", 1);
+    tigrPrint(pantalla_juego, tfont, 31*ancho_ventana/50, 2*alto_ventana/50, color_texto, "Tiempo de juego", 1);
+    tigrPrint(pantalla_juego, tfont, 44*ancho_ventana/50, 2*alto_ventana/50, color_texto, "%02.0f:", minutos_juego);
+    tigrPrint(pantalla_juego, tfont, 46*ancho_ventana/50+2, 2*alto_ventana/50, color_texto, "%02.0f", segundos_juego);
+>>>>>>> 80ea873acc3d63beabdb3227194d913e03ba1904
    
     // Marco del rectangulo de la barra de juego.
     for(i=0;i<2;i++){
@@ -499,6 +534,11 @@ void barra_juego(Tigr *pantalla_juego, int ancho_ventana, int alto_ventana, char
     tigrLine(pantalla_juego, ancho_ventana-2+i, 0, ancho_ventana-2+i, 4*alto_ventana/50, color_barrajuego2);
     tigrLine(pantalla_juego, 0, 0+i, ancho_ventana, 0+i, color_barrajuego2);
     }
+<<<<<<< HEAD
+=======
+   
+    tigrPrint(pantalla_juego, tfont, 18*ancho_ventana/50, 2*alto_ventana/50, color_texto,"%s", nombre);
+>>>>>>> 80ea873acc3d63beabdb3227194d913e03ba1904
 }
 void imprimir_game_over(Tigr *pantalla, int ancho_ventana, int alto_ventana) {
     TCoordenadas pantalla_gameover, marco_gameover;
@@ -568,6 +608,7 @@ void imprimir_game_over(Tigr *pantalla, int ancho_ventana, int alto_ventana) {
         tigrLine(pantalla_gameover.i, 221+i, 75, 231+i, 100, rojo);
     }
 
+<<<<<<< HEAD
     tigrFill(pantalla_gameover.i, marco_gameover.x/6, marco_gameover.y/3, marco_gameover.w, marco_gameover.h, color_marco);
     //tigrFill(pantalla_gameover.i, marco_gameover.x, marco_gameover.y, marco_gameover.w, marco_gameover.h, color_marco);
     
@@ -623,13 +664,22 @@ bool bajar_escaleras_barril(TBarriles barril, TLista_coordenadas escaleras, int 
 int juego(Tigr *pantalla, int ancho_ventana, int alto_ventana, char nombre[11],float velocidad_ending) {
     
     TCoordenadas pantalla_juego, pantalla_estructura, personaje, tarta;
+=======
+int juego(Tigr *pantalla, int ancho_ventana, int alto_ventana, char nombre[11],float velocidad_ending) {
+    TCoordenadas pantalla_juego, personaje, tarta;
+>>>>>>> 80ea873acc3d63beabdb3227194d913e03ba1904
     TNiveles nivel1;
 
     int caso, i, j, ultima_posicion_y, ultima_posicion_x, numero_barriles, gravedad, gravedad_barriles, posicion_escalera;
     float tiempo_juego, tiempo_barriles, tiempo_total=0, resguardo_gravedad, velocidad_caida, resguardo_movimiento, resguardo_escalera, cantidad_movimiento;
     char ultima_direccion;
+<<<<<<< HEAD
     bool cierre, pausa, caida, ending, esta_escalera, colgando, game_over, primer_salto;
     
+=======
+    bool cierre, pausa, caida, ending, esta_escalera, colgando;
+   
+>>>>>>> 80ea873acc3d63beabdb3227194d913e03ba1904
     // Coordenadas y dimensiones de las escaleas del nivel 1.
     for(i=0; i<9; i++) {
         nivel1.escaleras[i].w=3*ancho_ventana/50;
@@ -922,12 +972,38 @@ int juego(Tigr *pantalla, int ancho_ventana, int alto_ventana, char nombre[11],f
                     }
                 }
             }
+<<<<<<< HEAD
             // Comprobar si se ha chocado con el jugador.
             for(i=0; i<numero_barriles; i++) {
                 if(colision_barril(personaje, nivel1.barriles[i].coordenadas)) {
                     game_over=true;
                 }
             }
+=======
+            // Pinta los barriles.
+            pintar_barriles(pantalla_juego.i, numero_barriles, nivel1_barriles);
+           
+            // Asignacion de que PNG pintar segun el estado del jugador.
+            if(tigrKeyHeld(pantalla, 'A')) {
+                personaje.i=tigrLoadImage("./imagenes/personaje/caminar_izquierda.png");
+            }
+            else if(tigrKeyHeld(pantalla, 'D')) {
+                personaje.i=tigrLoadImage("./imagenes/personaje/caminar_derecha.png");
+            }
+            else if(ultima_direccion=='D') {
+                personaje.i=tigrLoadImage("./imagenes/personaje/estatico_derecha.png");
+            }
+            else if(ultima_direccion=='I') {
+                personaje.i=tigrLoadImage("./imagenes/personaje/estatico_izquierda.png");
+            }
+            // Pinta la tarta.
+            tigrBlitAlpha(pantalla_juego.i, tarta.i, tarta.x, tarta.y, 0, 0, tarta.w, tarta.h, 1);
+            // Pinta el jugador por pantalla.
+            tigrBlitAlpha(pantalla_juego.i, personaje.i, personaje.x, personaje.y, 0, 0, personaje.w, personaje.h, 1);
+           
+            barra_juego(pantalla_juego.i, ancho_ventana, alto_ventana, nombre,tiempo_juego, color_barrajuego, color_texto, color_barrajuego2);
+           
+>>>>>>> 80ea873acc3d63beabdb3227194d913e03ba1904
         }
         // Efecto de muerte.
         if((game_over) && (!primer_salto)) {
@@ -1005,7 +1081,7 @@ int main() {
                     break;
             case 2: caso=juego(pantalla, ancho_ventana, alto_ventana, nombre,velocidad_cierre);
                     break;
-            case 3: 
+            case 3:
                     break;
         }
     } while(caso!=-1);
