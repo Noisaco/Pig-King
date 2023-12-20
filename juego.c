@@ -1,5 +1,4 @@
-#include<stdio.h> // Se copila con gcc ./tigr/tigr.c juego.c -o juego -I./tigr -lGLU -lGL -lX11 -lm
-#include <math.h>
+#include<stdio.h> // Se copila con gcc ./tigr/tigr.c juego.c -o juego -I./tigr -lGLU -lGL -lX11
 #include<stdbool.h>
 #include"./tigr/tigr.h"
 
@@ -14,7 +13,7 @@ typedef TCoordenadas TLista_coordenadas[15];
 typedef struct {
     TCoordenadas coordenadas;
     char direccion;
-    int cantidad_movimiento;
+    float cantidad_movimiento;
     float resguardo;
     bool caida;
     float velocidad_caida;
@@ -24,6 +23,13 @@ typedef struct {
     bool esta_escalera;
 } TBarriles;
 typedef TBarriles TLista_barriles[15];
+typedef struct {
+    TLista_coordenadas escaleras;
+    TLista_coordenadas plataformas;
+    TLista_barriles barriles;
+    TCoordenadas tarta;
+    TCoordenadas oveja;
+} TNiveles;
 float Calcular_Tiempo() {
     float tiempo_inicial=0, tiempo_final=0, tiempo_total=0;
     tiempo_final=tigrTime();
@@ -31,49 +37,43 @@ float Calcular_Tiempo() {
     tiempo_inicial=tigrTime();
     return tiempo_total;
 }
-typedef struct {
-    TLista_coordenadas escaleras;
-    TLista_coordenadas plataformas;
-    TLista_barriles barriles;
-    TCoordenadas tarta;
-} TNiveles;
 // Modulo que pinta el titulo y la sombra.
 void pintar_titulo_y_sombra(Tigr *transparencia_titulo, TPixel cuerpo_o_sombra) {
     int i;
     for(i=0; i<10; i++) {
-                    // La letra P.
-                    tigrLine(transparencia_titulo, 0+i, 40, 10+i, 0, cuerpo_o_sombra);
-                    tigrLine(transparencia_titulo, 10, 0+i, 40-i, 0+i, cuerpo_o_sombra);
-                    tigrLine(transparencia_titulo, 40-i, 0, 33-i, 30, cuerpo_o_sombra);
-                    tigrLine(transparencia_titulo, 33, 30-i, 10, 30-i, cuerpo_o_sombra);
-                    // La letra I.
-                    tigrLine(transparencia_titulo, 40+i, 40, 50+i, 0, cuerpo_o_sombra);
-                    // La letra G.
-                    tigrLine(transparencia_titulo, 60+i, 40, 70+i, 0, cuerpo_o_sombra);
-                    tigrLine(transparencia_titulo, 60+i, 40-i, 90, 40-i, cuerpo_o_sombra);
-                    tigrLine(transparencia_titulo, 90-i, 40, 95-i, 20, cuerpo_o_sombra);
-                    tigrLine(transparencia_titulo, 70, 0+i, 95, 0+i, cuerpo_o_sombra);
-                    tigrLine(transparencia_titulo, 100-i, 0, 97-i, 10, cuerpo_o_sombra);
-                    // La letra K.
-                    tigrLine(transparencia_titulo, 110+i, 40, 120+i, 0, cuerpo_o_sombra);
-                    tigrLine(transparencia_titulo, 123+i, 20, 130+i, 40, cuerpo_o_sombra);
-                    tigrLine(transparencia_titulo, 123+i, 20, 140+i, 0, cuerpo_o_sombra);
-                    // La letra I.
-                    tigrLine(transparencia_titulo, 150+i, 40, 160+i, 0, cuerpo_o_sombra);
-                    // La letra N.
-                    tigrLine(transparencia_titulo, 170+i, 40, 180+i, 0, cuerpo_o_sombra);
-                    tigrLine(transparencia_titulo, 180+i, 0, 190+i, 40, cuerpo_o_sombra);
-                    tigrLine(transparencia_titulo, 190+i, 40, 200+i, 0, cuerpo_o_sombra);
-                    // La letra G.
-                    tigrLine(transparencia_titulo, 210+i, 40, 220+i, 0, cuerpo_o_sombra);
-                    tigrLine(transparencia_titulo, 210+i, 40-i, 240, 40-i, cuerpo_o_sombra);
-                    tigrLine(transparencia_titulo, 240-i, 40, 245-i, 20, cuerpo_o_sombra);
-                    tigrLine(transparencia_titulo, 220, 0+i, 245, 0+i, cuerpo_o_sombra);
-                    tigrLine(transparencia_titulo, 250-i, 0, 247-i, 10, cuerpo_o_sombra);
-                }
+        // La letra P.
+        tigrLine(transparencia_titulo, 0+i, 40, 10+i, 0, cuerpo_o_sombra);
+        tigrLine(transparencia_titulo, 10, 0+i, 40-i, 0+i, cuerpo_o_sombra);
+        tigrLine(transparencia_titulo, 40-i, 0, 33-i, 30, cuerpo_o_sombra);
+        tigrLine(transparencia_titulo, 33, 30-i, 10, 30-i, cuerpo_o_sombra);
+        // La letra I.
+        tigrLine(transparencia_titulo, 40+i, 40, 50+i, 0, cuerpo_o_sombra);
+        // La letra G.
+        tigrLine(transparencia_titulo, 60+i, 40, 70+i, 0, cuerpo_o_sombra);
+        tigrLine(transparencia_titulo, 60+i, 40-i, 90, 40-i, cuerpo_o_sombra);
+        tigrLine(transparencia_titulo, 90-i, 40, 95-i, 20, cuerpo_o_sombra);
+        tigrLine(transparencia_titulo, 70, 0+i, 95, 0+i, cuerpo_o_sombra);
+        tigrLine(transparencia_titulo, 100-i, 0, 97-i, 10, cuerpo_o_sombra);
+        // La letra K.
+        tigrLine(transparencia_titulo, 110+i, 40, 120+i, 0, cuerpo_o_sombra);
+        tigrLine(transparencia_titulo, 123+i, 20, 130+i, 40, cuerpo_o_sombra);
+        tigrLine(transparencia_titulo, 123+i, 20, 140+i, 0, cuerpo_o_sombra);
+        // La letra I.
+        tigrLine(transparencia_titulo, 150+i, 40, 160+i, 0, cuerpo_o_sombra);
+        // La letra N.
+        tigrLine(transparencia_titulo, 170+i, 40, 180+i, 0, cuerpo_o_sombra);
+        tigrLine(transparencia_titulo, 180+i, 0, 190+i, 40, cuerpo_o_sombra);
+        tigrLine(transparencia_titulo, 190+i, 40, 200+i, 0, cuerpo_o_sombra);
+        // La letra G.
+        tigrLine(transparencia_titulo, 210+i, 40, 220+i, 0, cuerpo_o_sombra);
+        tigrLine(transparencia_titulo, 210+i, 40-i, 240, 40-i, cuerpo_o_sombra);
+        tigrLine(transparencia_titulo, 240-i, 40, 245-i, 20, cuerpo_o_sombra);
+        tigrLine(transparencia_titulo, 220, 0+i, 245, 0+i, cuerpo_o_sombra);
+        tigrLine(transparencia_titulo, 250-i, 0, 247-i, 10, cuerpo_o_sombra);
+    }
 }
 // Modulo que muestra el menu.
-int menu(Tigr *pantalla, int ancho_ventana, int alto_ventana, float velocidad_ending) {
+int menu(Tigr *pantalla, int ancho_ventana, int alto_ventana, float velocidad_ending, int *nivel) {
     TCoordenadas cursor, cortina, plantilla, titulo, sombra, boton_jugar, boton_niveles, boton_puntuacion, pantalla_menu;
    
     pantalla_menu.x=0, pantalla_menu.y=0, pantalla_menu.w=ancho_ventana, pantalla_menu.h=alto_ventana;
@@ -212,7 +212,7 @@ int menu(Tigr *pantalla, int ancho_ventana, int alto_ventana, float velocidad_en
             seleccion=1;
         }
         else if((!opening) && (!ending) && (cursor.x>=boton_niveles.x) && (cursor.y>=boton_niveles.y) && (cursor.x<=boton_niveles.x+boton_niveles.w) && (cursor.y<=boton_niveles.y+boton_niveles.h)) {
-            seleccion=2;
+            seleccion=4;
         }
         else if((!opening) && (!ending) && (cursor.x>=boton_puntuacion.x) && (cursor.y>=boton_puntuacion.y) && (cursor.x<=boton_puntuacion.x+boton_puntuacion.w) && (cursor.y<=boton_puntuacion.y+boton_puntuacion.h)) {
             seleccion=3;
@@ -227,21 +227,14 @@ int menu(Tigr *pantalla, int ancho_ventana, int alto_ventana, float velocidad_en
         tema_boton_niveles=tema_actual;
         tema_boton_puntuacion=tema_actual;
         switch(seleccion) {
-            // Si el cursor no esta en ningun boton.
-            case 0: presion_boton_jugar=no_presionado;
-                    presion_boton_niveles=no_presionado;
-                    presion_boton_puntuacion=no_presionado;
-                    tema_boton_jugar=tema_actual;
-                    tema_boton_niveles=tema_actual;
-                    tema_boton_puntuacion=tema_actual;
-                    break;
             case 1: presion_boton_jugar=si_presionado;
                     tema_boton_jugar=color_seleccionado;
                     if((click==1) && (last_click==0)) {
+                        *nivel=1;
                         ending=true;
                     }
                     break;
-            case 2: presion_boton_niveles=si_presionado;
+            case 4: presion_boton_niveles=si_presionado;
                     tema_boton_niveles=color_seleccionado;
                     if((click==1) && (last_click==0)) {
                         ending=true;
@@ -267,8 +260,6 @@ int menu(Tigr *pantalla, int ancho_ventana, int alto_ventana, float velocidad_en
         }
         // Limpia el fondo de pantalla.
         tigrClear(pantalla, tigrRGB(0, 0, 0));
-        // Integracion de la pantalla del menu a la pantalla del programa y elevacion de cierre.
-        tigrBlitAlpha(pantalla, pantalla_menu.i, pantalla_menu.x, pantalla_menu.y, 0, 0, pantalla_menu.w, pantalla_menu.h, 1);
         if(!ending) {
             // Limpia la pantalla.
             tigrClear(pantalla_menu.i, tigrRGB(0, 0, 0));
@@ -336,6 +327,8 @@ int menu(Tigr *pantalla, int ancho_ventana, int alto_ventana, float velocidad_en
             seleccion=-1;
             ending=true;
         }
+        // Integracion de la pantalla del menu a la pantalla del programa y elevacion de cierre.
+        tigrBlitAlpha(pantalla, pantalla_menu.i, pantalla_menu.x, pantalla_menu.y, 0, 0, pantalla_menu.w, pantalla_menu.h, 1);
         // Actualiza la imagen
         tigrUpdate(pantalla);
     }
@@ -431,7 +424,7 @@ void pintar_estructuras_nivel1(Tigr *pantalla_estructura, int ancho_ventana, int
         //6ª plataforma
         tigrLine(pantalla_estructura, 13*ancho_ventana/50, 21*alto_ventana/50+i, 47*ancho_ventana/50, 20*alto_ventana/50+i, color_solido);
         //7ª plataforma
-        tigrLine(pantalla_estructura, 4*ancho_ventana/50, 15*alto_ventana/50+i, 47*ancho_ventana/50, 15*alto_ventana/50+i, color_solido);
+        tigrLine(pantalla_estructura, ancho_ventana/50, 15*alto_ventana/50+i, 47*ancho_ventana/50, 15*alto_ventana/50+i, color_solido);
         //8ª plataforma
         tigrLine(pantalla_estructura, 18*ancho_ventana/50, 10*alto_ventana/50+i, 31*ancho_ventana/50, 10*alto_ventana/50+i, color_solido);
         //Entre la pltaforma 3 y 4.
@@ -504,19 +497,18 @@ void barra_juego(Tigr *pantalla_juego, int ancho_ventana, int alto_ventana, char
 }
 bool imprimir_game_over(Tigr *pantalla, int ancho_ventana, int alto_ventana, int *seleccion, int *caso) {
     TCoordenadas pantalla_gameover, boton_menu, boton_jugar;
-    int i, tecla;
-    TPixel presion_boton_menu, presion_boton_jugar;
-    TPixel rojo,fondo,color_marco, color_botones, color_seleccionado;
-
+    int i, j, tecla, ancho_sombra;
+    TPixel presion_boton_menu, presion_boton_jugar, cuerpo_o_sombra, rojo, sombra, fondo, color_marco, color_botones, color_seleccionado;
     // Establecimiento de las coordenadas y las dimensiones de la pantalla Game Over.
     pantalla_gameover.x=ancho_ventana/8, pantalla_gameover.y=alto_ventana/10, pantalla_gameover.w=6*ancho_ventana/8, pantalla_gameover.h=8*alto_ventana/10; 
     pantalla_gameover.i=tigrBitmap(pantalla_gameover.w, pantalla_gameover.h);
     boton_jugar.x=pantalla_gameover.w/6, boton_jugar.y=3*pantalla_gameover.h/8, boton_jugar.w=4*pantalla_gameover.w/6, boton_jugar.h=pantalla_gameover.h/6;
     boton_menu.x=pantalla_gameover.w/6, boton_menu.y=5*pantalla_gameover.h/8, boton_menu.w=4*pantalla_gameover.w/6, boton_menu.h=pantalla_gameover.h/6;
+    ancho_sombra=6;
     // Establecimiento del los colores.
-    rojo=tigrRGB(222, 15, 15), color_marco=tigrRGB(160, 0, 100), fondo=tigrRGB(69, 0, 98), color_botones=tigrRGB(101, 9, 117),color_seleccionado=tigrRGB(75, 20, 89);
-    
-    
+    rojo=tigrRGB(222, 15, 15), sombra=tigrRGB(58, 0, 82),color_marco=tigrRGB(160, 0, 100), fondo=tigrRGB(69, 0, 98), color_botones=tigrRGB(101, 9, 117),color_seleccionado=tigrRGB(75, 20, 89);
+    cuerpo_o_sombra=sombra;
+    // Selector de opciones mediante teclado.
     tecla=tigrReadChar(pantalla);
     if((*seleccion==1) && (tigrKeyHeld(pantalla,'S'))) {
         *seleccion=0;
@@ -542,53 +534,58 @@ bool imprimir_game_over(Tigr *pantalla, int ancho_ventana, int alto_ventana, int
                 }
                 break;
     }
+    // Limpia la pantalla de game over.
     tigrClear(pantalla_gameover.i, fondo);
-    for(i=0;i<10;i++){
-        // Letra G.
-        tigrLine(pantalla_gameover.i, 60+i, 50, 70+i, 10, rojo);
-        tigrLine(pantalla_gameover.i, 60+i, 50-i, 90, 50-i, rojo);
-        tigrLine(pantalla_gameover.i, 90-i, 50, 95-i, 30, rojo);
-        tigrLine(pantalla_gameover.i, 70, 10+i, 95, 10+i, rojo);
-        tigrLine(pantalla_gameover.i, 100-i, 10, 97-i, 20, rojo);
-        // Letra A.
-        tigrLine(pantalla_gameover.i, 100+i, 50, 120+i, 10, rojo);
-        tigrLine(pantalla_gameover.i, 120+i, 10, 130+i, 50, rojo);
-        tigrLine(pantalla_gameover.i, 120, 40+i, 130, 40+i, rojo);
-        // Letra M.
-        tigrLine(pantalla_gameover.i, 150+i, 50, 160+i, 10, rojo);
-        tigrLine(pantalla_gameover.i, 160+i, 10, 170+i, 30, rojo);
-        tigrLine(pantalla_gameover.i, 170+i, 30, 190+i, 10, rojo);
-        tigrLine(pantalla_gameover.i, 190+i, 10, 180+i, 50, rojo);
-        // Letra E.
-        tigrLine(pantalla_gameover.i, 200+i, 50, 210+i, 10, rojo);
-        tigrLine(pantalla_gameover.i, 210, 10+i, 235, 10+i, rojo);
-        tigrLine(pantalla_gameover.i, 240-i, 10, 237-i, 20, rojo);
-        tigrLine(pantalla_gameover.i, 211, 25+i, 235, 25+i, rojo);
-        tigrLine(pantalla_gameover.i, 236-i, 25, 234-i, 35, rojo);
-        tigrLine(pantalla_gameover.i, 200+i, 50-i, 230, 50-i, rojo);
-        tigrLine(pantalla_gameover.i, 233-i, 41, 230-i, 50, rojo);
-        // Letra O.
-        tigrLine(pantalla_gameover.i, 65+i, 100, 75+i, 60, rojo);
-        tigrLine(pantalla_gameover.i, 75, 60+i, 105-i, 60+i, rojo);
-        tigrLine(pantalla_gameover.i, 65+i, 100-i, 95, 100-i, rojo);
-        tigrLine(pantalla_gameover.i, 85+i, 100, 95+i, 60, rojo);
-        // Letra V.
-        tigrLine(pantalla_gameover.i, 115+i, 60, 120+i, 100, rojo);
-        tigrLine(pantalla_gameover.i, 120+i, 100, 145+i, 60, rojo);
-        // Letra E.
-        tigrLine(pantalla_gameover.i, 155+i, 100, 165+i, 60, rojo);
-        tigrLine(pantalla_gameover.i, 165, 60+i, 190, 60+i, rojo);
-        tigrLine(pantalla_gameover.i, 195-i, 60, 192-i, 70, rojo);
-        tigrLine(pantalla_gameover.i, 166, 75+i, 190, 75+i, rojo);
-        tigrLine(pantalla_gameover.i, 191-i, 75, 189-i, 85, rojo);
-        tigrLine(pantalla_gameover.i, 155+i, 100-i, 185, 100-i, rojo);
-        tigrLine(pantalla_gameover.i, 188-i, 91, 185-i, 100, rojo);
-        // Letra R.
-        tigrLine(pantalla_gameover.i, 200+i, 100, 210+i, 60, rojo);
-        tigrLine(pantalla_gameover.i, 210, 60+i, 240, 60+i, rojo);
-        tigrLine(pantalla_gameover.i, 235+i, 60, 225+i, 80, rojo);
-        tigrLine(pantalla_gameover.i, 230, 75+i, 205, 75+i, rojo);
-        tigrLine(pantalla_gameover.i, 221+i, 75, 231+i, 100, rojo);
+    for(i=0; i<2; i++) {
+        for(j=0;j<10;j++){
+            // Letra G.
+            tigrLine(pantalla_gameover.i, 60+j+ancho_sombra, 50+(ancho_sombra/2), 70+j+ancho_sombra, 10+(ancho_sombra/2), cuerpo_o_sombra);
+            tigrLine(pantalla_gameover.i, 60+j+ancho_sombra, 50-j+(ancho_sombra/2), 90+ancho_sombra, 50-j+(ancho_sombra/2), cuerpo_o_sombra);
+            tigrLine(pantalla_gameover.i, 90-j+ancho_sombra, 50+(ancho_sombra/2), 95-j+ancho_sombra, 30+(ancho_sombra/2), cuerpo_o_sombra);
+            tigrLine(pantalla_gameover.i, 70+ancho_sombra, 10+j+(ancho_sombra/2), 95+ancho_sombra, 10+j+(ancho_sombra/2), cuerpo_o_sombra);
+            tigrLine(pantalla_gameover.i, 100-j+ancho_sombra, 10+(ancho_sombra/2), 97-j+ancho_sombra, 20+(ancho_sombra/2), cuerpo_o_sombra);
+            // Letra A.
+            tigrLine(pantalla_gameover.i, 100+j+ancho_sombra, 50+(ancho_sombra/2), 120+j+ancho_sombra, 10+(ancho_sombra/2), cuerpo_o_sombra);
+            tigrLine(pantalla_gameover.i, 120+j+ancho_sombra, 10+(ancho_sombra/2), 130+j+ancho_sombra, 50+(ancho_sombra/2), cuerpo_o_sombra);
+            tigrLine(pantalla_gameover.i, 120+ancho_sombra, 40+j+(ancho_sombra/2), 130+ancho_sombra, 40+j+(ancho_sombra/2), cuerpo_o_sombra);
+            // Letra M.
+            tigrLine(pantalla_gameover.i, 150+j+ancho_sombra, 50+(ancho_sombra/2), 160+j+ancho_sombra, 10+(ancho_sombra/2), cuerpo_o_sombra);
+            tigrLine(pantalla_gameover.i, 160+j+ancho_sombra, 10+(ancho_sombra/2), 170+j+ancho_sombra, 30+(ancho_sombra/2), cuerpo_o_sombra);
+            tigrLine(pantalla_gameover.i, 170+j+ancho_sombra, 30+(ancho_sombra/2), 190+j+ancho_sombra, 10+(ancho_sombra/2), cuerpo_o_sombra);
+            tigrLine(pantalla_gameover.i, 190+j+ancho_sombra, 10+(ancho_sombra/2), 180+j+ancho_sombra, 50+(ancho_sombra/2), cuerpo_o_sombra);
+            // Letra E.
+            tigrLine(pantalla_gameover.i, 200+j+ancho_sombra, 50+(ancho_sombra/2), 210+j+ancho_sombra, 10+(ancho_sombra/2), cuerpo_o_sombra);
+            tigrLine(pantalla_gameover.i, 210+ancho_sombra, 10+j+(ancho_sombra/2), 235+ancho_sombra, 10+j+(ancho_sombra/2), cuerpo_o_sombra);
+            tigrLine(pantalla_gameover.i, 240-j+ancho_sombra, 10+(ancho_sombra/2), 237-j+ancho_sombra, 20+(ancho_sombra/2), cuerpo_o_sombra);
+            tigrLine(pantalla_gameover.i, 211+ancho_sombra, 25+j+(ancho_sombra/2), 235+ancho_sombra, 25+j+(ancho_sombra/2), cuerpo_o_sombra);
+            tigrLine(pantalla_gameover.i, 236-j+ancho_sombra, 25+(ancho_sombra/2), 234-j+ancho_sombra, 35+(ancho_sombra/2), cuerpo_o_sombra);
+            tigrLine(pantalla_gameover.i, 200+j+ancho_sombra, 50-j+(ancho_sombra/2), 230+ancho_sombra, 50-j+(ancho_sombra/2), cuerpo_o_sombra);
+            tigrLine(pantalla_gameover.i, 233-j+ancho_sombra, 41+(ancho_sombra/2), 230-j+ancho_sombra, 50+(ancho_sombra/2), cuerpo_o_sombra);
+            // Letra O.
+            tigrLine(pantalla_gameover.i, 65+j+ancho_sombra, 100+(ancho_sombra/2), 75+j+ancho_sombra, 60+(ancho_sombra/2), cuerpo_o_sombra);
+            tigrLine(pantalla_gameover.i, 75+ancho_sombra, 60+j+(ancho_sombra/2), 105-j+ancho_sombra, 60+j+(ancho_sombra/2), cuerpo_o_sombra);
+            tigrLine(pantalla_gameover.i, 65+j+ancho_sombra, 100-j+(ancho_sombra/2), 95+ancho_sombra, 100-j+(ancho_sombra/2), cuerpo_o_sombra);
+            tigrLine(pantalla_gameover.i, 85+j+ancho_sombra, 100+(ancho_sombra/2), 95+j+ancho_sombra, 60+(ancho_sombra/2), cuerpo_o_sombra);
+            // Letra V.
+            tigrLine(pantalla_gameover.i, 115+j+ancho_sombra, 60+(ancho_sombra/2), 120+j+ancho_sombra, 100+(ancho_sombra/2), cuerpo_o_sombra);
+            tigrLine(pantalla_gameover.i, 120+j+ancho_sombra, 100+(ancho_sombra/2), 145+j+ancho_sombra, 60+(ancho_sombra/2), cuerpo_o_sombra);
+            // Letra E.
+            tigrLine(pantalla_gameover.i, 155+j+ancho_sombra, 100+(ancho_sombra/2), 165+j+ancho_sombra, 60+(ancho_sombra/2), cuerpo_o_sombra);
+            tigrLine(pantalla_gameover.i, 165+ancho_sombra, 60+j+(ancho_sombra/2), 190+ancho_sombra, 60+j+(ancho_sombra/2), cuerpo_o_sombra);
+            tigrLine(pantalla_gameover.i, 195-j+ancho_sombra, 60+(ancho_sombra/2), 192-j+ancho_sombra, 70+(ancho_sombra/2), cuerpo_o_sombra);
+            tigrLine(pantalla_gameover.i, 166+ancho_sombra, 75+j+(ancho_sombra/2), 190+ancho_sombra, 75+j+(ancho_sombra/2), cuerpo_o_sombra);
+            tigrLine(pantalla_gameover.i, 191-j+ancho_sombra, 75+(ancho_sombra/2), 189-j+ancho_sombra, 85+(ancho_sombra/2), cuerpo_o_sombra);
+            tigrLine(pantalla_gameover.i, 155+j+ancho_sombra, 100-j+(ancho_sombra/2), 185+ancho_sombra, 100-j+(ancho_sombra/2), cuerpo_o_sombra);
+            tigrLine(pantalla_gameover.i, 188-j+ancho_sombra, 91+(ancho_sombra/2), 185-j+ancho_sombra, 100+(ancho_sombra/2), cuerpo_o_sombra);
+            // Letra R.
+            tigrLine(pantalla_gameover.i, 200+j+ancho_sombra, 100+(ancho_sombra/2), 210+j+ancho_sombra, 60+(ancho_sombra/2), cuerpo_o_sombra);
+            tigrLine(pantalla_gameover.i, 210+ancho_sombra, 60+j+(ancho_sombra/2), 240+ancho_sombra, 60+j+(ancho_sombra/2), cuerpo_o_sombra);
+            tigrLine(pantalla_gameover.i, 235+j+ancho_sombra, 60+(ancho_sombra/2), 225+j+ancho_sombra, 80+(ancho_sombra/2), cuerpo_o_sombra);
+            tigrLine(pantalla_gameover.i, 230+ancho_sombra, 75+j+(ancho_sombra/2), 205+ancho_sombra, 75+j+(ancho_sombra/2), cuerpo_o_sombra);
+            tigrLine(pantalla_gameover.i, 221+j+ancho_sombra, 75+(ancho_sombra/2), 231+j+ancho_sombra, 100+(ancho_sombra/2), cuerpo_o_sombra);
+        }
+        ancho_sombra-=6;
+        cuerpo_o_sombra=rojo;
     }
     //Fondo y texto para boton volver a jugar.
     tigrFill(pantalla_gameover.i, boton_jugar.x, boton_jugar.y, boton_jugar.w, boton_jugar.h, presion_boton_jugar);
@@ -596,32 +593,29 @@ bool imprimir_game_over(Tigr *pantalla, int ancho_ventana, int alto_ventana, int
     //Fondo y texto para boton volver al menu.
     tigrFill(pantalla_gameover.i, boton_menu.x, boton_menu.y, boton_menu.w, boton_menu.h, presion_boton_menu);
     tigrPrint(pantalla_gameover.i,  tfont, 5*ancho_ventana/19, 28*alto_ventana/50-1, rojo, "VOLVER AL MENÚ", 1);
-    // Pintar marcos.
-    for(i=0; i<4; i++) {
-        //Marco de ventana.
-        tigrLine(pantalla_gameover.i, 0, i, pantalla_gameover.w, i, color_marco);
-        tigrLine(pantalla_gameover.i, 0, pantalla_gameover.h-i-1, pantalla_gameover.w, pantalla_gameover.h-i-1, color_marco);
-        tigrLine(pantalla_gameover.i, 0+i, 0, 0+i, pantalla_gameover.h, color_marco);
-        tigrLine(pantalla_gameover.i, pantalla_gameover.w-i-1, 0, pantalla_gameover.w-i-1, pantalla_gameover.h, color_marco);
-        //Marco del boton volver a jugar.
-        tigrLine(pantalla_gameover.i, boton_jugar.x, boton_jugar.y+i, boton_jugar.x+boton_jugar.w, boton_jugar.y+i, color_marco);
-        tigrLine(pantalla_gameover.i, boton_jugar.x+i, boton_jugar.y, boton_jugar.x+i, boton_jugar.y+boton_jugar.h, color_marco);
-        tigrLine(pantalla_gameover.i, boton_jugar.x+boton_jugar.w-i, boton_jugar.y, boton_jugar.x+boton_jugar.w-i, boton_jugar.y+boton_jugar.h, color_marco);
-        tigrLine(pantalla_gameover.i, boton_jugar.x, boton_jugar.y+boton_jugar.h-i, boton_jugar.x+boton_jugar.w, boton_jugar.y+boton_jugar.h-i, color_marco);
-        //Marco para el boton volvel al menu.
-        tigrLine(pantalla_gameover.i, boton_menu.x, boton_menu.y+i, boton_menu.x+boton_menu.w, boton_menu.y+i, color_marco);
-        tigrLine(pantalla_gameover.i, boton_menu.x+i, boton_menu.y, boton_menu.x+i, boton_menu.y+boton_menu.h, color_marco);
-        tigrLine(pantalla_gameover.i, boton_menu.x+boton_menu.w-i, boton_menu.y, boton_menu.x+boton_menu.w-i, boton_menu.y+boton_menu.h, color_marco);
-        tigrLine(pantalla_gameover.i, boton_menu.x, boton_menu.y+boton_menu.h-i, boton_menu.x+boton_menu.w, boton_menu.y+boton_menu.h-i, color_marco);
-    }
+    // Marco de ventana.
+    tigrFill(pantalla_gameover.i, 0, 0, pantalla_gameover.w, 3, color_marco);
+    tigrFill(pantalla_gameover.i, 0, 0, 3, pantalla_gameover.h, color_marco);
+    tigrFill(pantalla_gameover.i, 0, pantalla_gameover.h-3, pantalla_gameover.w, 3, color_marco);
+    tigrFill(pantalla_gameover.i, pantalla_gameover.w-3, 0, 3, pantalla_gameover.h, color_marco);
+    // Marco del boton volver a jugar.
+    tigrFill(pantalla_gameover.i, boton_jugar.x, boton_jugar.y, boton_jugar.w, 2, color_marco);
+    tigrFill(pantalla_gameover.i, boton_jugar.x, boton_jugar.y, 2, boton_jugar.h, color_marco);
+    tigrFill(pantalla_gameover.i, boton_jugar.x, boton_jugar.y+boton_jugar.h-2, boton_jugar.w, 2, color_marco);
+    tigrFill(pantalla_gameover.i, boton_jugar.x+boton_jugar.w-2, boton_jugar.y, 2, boton_jugar.h, color_marco);
+    // Marco para el boton volvel al menu.
+    tigrFill(pantalla_gameover.i, boton_menu.x, boton_menu.y, boton_menu.w, 2, color_marco);
+    tigrFill(pantalla_gameover.i, boton_menu.x, boton_menu.y, 2, boton_menu.h, color_marco);
+    tigrFill(pantalla_gameover.i, boton_menu.x, boton_menu.y+boton_menu.h-2, boton_menu.w, 2, color_marco);
+    tigrFill(pantalla_gameover.i, boton_menu.x+boton_menu.w-2, boton_menu.y, 2, boton_menu.h, color_marco);
     tigrBlitAlpha(pantalla, pantalla_gameover.i, pantalla_gameover.x, pantalla_gameover.y, 0, 0, pantalla_gameover.w, pantalla_gameover.h, 1);
     return false;
 }
 bool imprimir_victoria(Tigr *pantalla, int ancho_ventana, int alto_ventana, int *seleccion, int *caso) {
     TCoordenadas pantalla_victoria, boton_menu, boton_nivel;
-    int i;
+    int i,tecla;
     TPixel presion_boton_menu, presion_boton_nivel;
-    TPixel verde,fondo,color_marco, color_botones, color_seleccionado;
+    TPixel color_verde,fondo,color_marco, color_botones, color_seleccionado;
     
     // Establecimiento de las coordenadas y las dimensiones de la pantalla Game Over.
     pantalla_victoria.x=ancho_ventana/8, pantalla_victoria.y=alto_ventana/10, pantalla_victoria.w=6*ancho_ventana/8, pantalla_victoria.h=8*alto_ventana/10; 
@@ -629,8 +623,9 @@ bool imprimir_victoria(Tigr *pantalla, int ancho_ventana, int alto_ventana, int 
     boton_nivel.x=pantalla_victoria.w/6, boton_nivel.y=3*pantalla_victoria.h/8, boton_nivel.w=4*pantalla_victoria.w/6, boton_nivel.h=pantalla_victoria.h/6;
     boton_menu.x=pantalla_victoria.w/6, boton_menu.y=5*pantalla_victoria.h/8, boton_menu.w=4*pantalla_victoria.w/6, boton_menu.h=pantalla_victoria.h/6;
     // Establecimiento del los colores.
-    verde=tigrRGB(17,171,58), color_marco=tigrRGB(10, 87, 18), fondo=tigrRGB(151,240,160), color_botones=tigrRGB(25, 115, 86),color_seleccionado=tigrRGB(14, 61, 29);
+    color_verde=tigrRGB(17,171,58), color_marco=tigrRGB(10, 87, 18), fondo=tigrRGB(151,240,160), color_botones=tigrRGB(25, 115, 86),color_seleccionado=tigrRGB(14, 61, 29);
     
+    tecla=tigrReadChar(pantalla);
     if((*seleccion==1) && (tigrKeyHeld(pantalla,'S'))) {
         *seleccion=0;
     }
@@ -638,53 +633,65 @@ bool imprimir_victoria(Tigr *pantalla, int ancho_ventana, int alto_ventana, int 
         *seleccion=1;
     }
     switch(*seleccion) {
-        // Volver al menu
+        // Volver al menu.
         case 0: presion_boton_nivel=color_botones;
                 presion_boton_menu=color_seleccionado;
+                if(tecla==13) {
+                    *caso=0;
+                    return true;
+                }
                 break;
-        // Volver a intentarlo.
+        // Siguiente nivel.
         case 1: presion_boton_menu=color_botones;
                 presion_boton_nivel=color_seleccionado;
+                if(tecla==13) {
+                    *caso=3;
+                    return true;
+                }
                 break;
     }
     tigrClear(pantalla_victoria.i, fondo);
     for(i=0;i<10;i++){
         // Letra V.
-        tigrLine(pantalla_victoria.i, 15+i, 50, 20+i, 10, verde);
-        tigrLine(pantalla_victoria.i, 20+i, 50, 45+i, 10, verde);
+        tigrLine(pantalla_victoria.i, 15+i, 50+20, 20+i, 10+20, color_verde); 
+        tigrLine(pantalla_victoria.i, 20+i, 50+20, 45+i, 10+20, color_verde); 
         // Letra I.
-        tigrLine(pantalla_victoria.i, 55+i, 50, 65+i, 10, verde);
-        //Letra C
-        tigrLine(pantalla_victoria.i, 75+i, 50, 85+i, 10, verde);
-        tigrLine(pantalla_victoria.i, 85, 10+i, 115-i, 10+i, verde);
-        tigrLine(pantalla_victoria.i, 80, 50-i, 95+i, 50-i, verde);
-        //Letra T.
-        tigrLine(pantalla_victoria.i, 125+i, 50, 135+i, 10, verde);
-        tigrLine(pantalla_victoria.i, 115+i, 10+i, 145-i, 10+i, verde);
-        //Letra O.
-        tigrLine(pantalla_victoria.i, 155+i, 50, 165+i, 10, verde);
-        tigrLine(pantalla_victoria.i, 165, 10+i, 195-i, 10+i, verde);
-        tigrLine(pantalla_victoria.i, 155+i, 50-i, 185, 50-i, verde);
-        tigrLine(pantalla_victoria.i, 175+i, 50, 185+i, 10, verde);
-        //Letra R.
-        tigrLine(pantalla_victoria.i, 200+i, 50, 210+i, 10, verde);
-        tigrLine(pantalla_victoria.i, 210, 10+i, 240, 10+i, verde);
-        tigrLine(pantalla_victoria.i, 235+i, 10, 225+i, 30, verde);
-        tigrLine(pantalla_victoria.i, 230, 25+i, 205, 25+i, verde);
-        tigrLine(pantalla_victoria.i, 221+i, 25, 231+i, 50, verde);
+        tigrLine(pantalla_victoria.i, 55+i, 50+20, 65+i, 10+20, color_verde);
+        // Letra C
+        tigrLine(pantalla_victoria.i, 75+i, 50+20, 85+i, 10+20, color_verde); 
+        tigrLine(pantalla_victoria.i, 85+i, 10+i+20, 105, 10+i+20, color_verde); 
+        tigrLine(pantalla_victoria.i, 110-i+1, 10+20, 107-i+1, 20+20, color_verde); 
+        tigrLine(pantalla_victoria.i, 75+i, 50-i+20, 105, 50-i+20, color_verde); 
+        tigrLine(pantalla_victoria.i, 108-i, 41+20, 105-i, 50+20, color_verde); 
+        // Letra T.
+        tigrLine(pantalla_victoria.i, 125+i, 50+20, 135+i, 10+20, color_verde); 
+        tigrLine(pantalla_victoria.i, 115+10-i, 10+i+20, 145-i+10, 10+i+20, color_verde); 
+        tigrLine(pantalla_victoria.i, 135, 10+i+20, 165-i, 10+i+20, color_verde);
+        tigrLine(pantalla_victoria.i, 115-i+10, 10+20, 112-i+10, 20+20, color_verde);
+        // Letra O.
+        tigrLine(pantalla_victoria.i, 155+i, 50+20, 165+i, 10+20, color_verde); 
+        tigrLine(pantalla_victoria.i, 165, 10+i+20, 195-i, 10+i+20, color_verde);
+        tigrLine(pantalla_victoria.i, 155+i, 50-i+20, 185, 50-i+20, color_verde); 
+        tigrLine(pantalla_victoria.i, 175+i, 50+20, 185+i, 10+20, color_verde); 
+        // Letra R.
+        tigrLine(pantalla_victoria.i, 195+i, 50+20, 205+i, 10+20, color_verde);
+        tigrLine(pantalla_victoria.i, 205, 10+i+20, 235, 10+i+20, color_verde); 
+        tigrLine(pantalla_victoria.i, 230+i, 10+20, 220+i, 30+20, color_verde); 
+        tigrLine(pantalla_victoria.i, 225, 25+i+20, 200, 25+i+20, color_verde); 
+        tigrLine(pantalla_victoria.i, 216+i, 25+20, 226+i, 50+20, color_verde); 
         // Letra I.
-        tigrLine(pantalla_victoria.i, 245+i, 50, 255+i, 10, verde);
+        tigrLine(pantalla_victoria.i, 240+i, 50+20, 250+i, 10+20, color_verde); 
         // Letra A.
-        tigrLine(pantalla_victoria.i, 268+i, 50, 278+i, 10, verde);
-        tigrLine(pantalla_victoria.i, 278+i, 10, 288+i, 50, verde);
-        tigrLine(pantalla_victoria.i, 278, 40+i, 288, 40+i, verde);
+        tigrLine(pantalla_victoria.i, 253+i, 50+20, 273+i, 10+20, color_verde); 
+        tigrLine(pantalla_victoria.i, 273+i, 10+20, 283+i, 50+20, color_verde); 
+        tigrLine(pantalla_victoria.i, 273, 40+i+20, 283, 40+i+20, color_verde); 
     }
     //Fondo y texto para boton siguente nivel.
     tigrFill(pantalla_victoria.i, boton_nivel.x, boton_nivel.y, boton_nivel.w, boton_nivel.h, presion_boton_nivel);
-    tigrPrint(pantalla_victoria.i, tfont, 5*ancho_ventana/19, 18*alto_ventana/50-2, verde, "SIGUIENTE NIVEL", 1);
+    tigrPrint(pantalla_victoria.i, tfont, 5*ancho_ventana/19, 18*alto_ventana/50-2, color_verde, "SIGUIENTE NIVEL", 1);
     //Fondo y texto para boton volver al menu.
     tigrFill(pantalla_victoria.i, boton_menu.x, boton_menu.y, boton_menu.w, boton_menu.h, presion_boton_menu);
-    tigrPrint(pantalla_victoria.i,  tfont, 5*ancho_ventana/19, 28*alto_ventana/50-1, verde, "VOLVER AL MENÚ", 1);
+    tigrPrint(pantalla_victoria.i,  tfont, 5*ancho_ventana/19, 28*alto_ventana/50-1, color_verde, "VOLVER AL MENÚ", 1);
     // Pintar marcos.
     for(i=0; i<4; i++) {
         //Marco de ventana.
@@ -713,29 +720,29 @@ bool saber_solido(TPixel color_solido, TPixel color_posicion) {
     }
     return false;
 }
-// Modulo que comprueba si el jugador choca con un barril.
-bool colision_barril(TCoordenadas personaje, TCoordenadas barril) {
+// Modulo que comprueba si el jugador choca con un barril, la tarta o con la oveja.
+bool colision_objeto(TCoordenadas personaje, TCoordenadas objeto) {
     // Esquina inferior izquierda.
-    if ((personaje.x>=barril.x) && (personaje.x<=(barril.x+barril.w)) && ((personaje.y + personaje.h-3)>=barril.y) && ((personaje.y+personaje.h-3)<=(barril.y+barril.h))) {
+    if ((personaje.x>=objeto.x) && (personaje.x<=(objeto.x+objeto.w)) && ((personaje.y + personaje.h-3)>=objeto.y) && ((personaje.y+personaje.h-3)<=(objeto.y+objeto.h))) {
         return true;
     }
     // Esquina inferior derecha.
-    if (((personaje.x+personaje.w)>=barril.x) && ((personaje.x+personaje.w)<=(barril.x+barril.w)) && ((personaje.y+personaje.h-3)>=barril.y) && ((personaje.y+personaje.h-3)<=(barril.y+barril.h))) {
+    if (((personaje.x+personaje.w)>=objeto.x) && ((personaje.x+personaje.w)<=(objeto.x+objeto.w)) && ((personaje.y+personaje.h-3)>=objeto.y) && ((personaje.y+personaje.h-3)<=(objeto.y+objeto.h))) {
         return true;
     }
     return false;
 }
-
-
 bool bajar_escaleras_barril(TBarriles barril, TLista_coordenadas escaleras, int caso, int *i) {
     if(barril.direccion=='D') {
         for(*i=barril.ultima_posicion_x; *i<=barril.coordenadas.x; *i++) {
+            // Escalera rota.
             if((!barril.caida) && ((caso%2)==0) && (*i==(escaleras[5].x+(escaleras[5].w/4))) && (barril.coordenadas.y>=(escaleras[5].y-30)) && (barril.coordenadas.y<=(escaleras[5].y+10))) {
                 return true;
             }
             else if((barril.caida) && ((caso%2)==0) && (*i==(escaleras[5].x+(escaleras[5].w/4)-3)) && (barril.coordenadas.y>=(escaleras[5].y-30)) && (barril.coordenadas.y<=(escaleras[5].y+10))) {
                 return true;
             }
+            // Penultima escalera.
             if((!barril.caida) && (*i==(escaleras[7].x+(escaleras[5].w/4))) && (barril.coordenadas.y>=(escaleras[7].y-30)) && (barril.coordenadas.y<=(escaleras[7].y+10))) {
                 return true;
             }
@@ -764,12 +771,14 @@ bool bajar_escaleras_barril(TBarriles barril, TLista_coordenadas escaleras, int 
     }
     else if(barril.direccion=='I') {
         for(*i=barril.ultima_posicion_x; *i>=barril.coordenadas.x; *i--) {
+            // Escalera rota.
             if((!barril.caida) && ((caso%2)==0) && (*i==(escaleras[5].x+(escaleras[5].w/4))) && (barril.coordenadas.y>=(escaleras[5].y-30)) && (barril.coordenadas.y<=(escaleras[5].y+10))) {
                 return true;
             }
             else if((barril.caida) && ((caso%2)==0) && (*i==(escaleras[5].x+(escaleras[5].w/4)-3)) && (barril.coordenadas.y>=(escaleras[5].y-30)) && (barril.coordenadas.y<=(escaleras[5].y+10))) {
                 return true;
             }
+            // Penultima escalera.
             if((!barril.caida) && (*i==(escaleras[7].x+(escaleras[7].w/4))) && (barril.coordenadas.y>=(escaleras[7].y-30)) && (barril.coordenadas.y<=(escaleras[7].y+10))) {
                 return true;
             }
@@ -798,16 +807,39 @@ bool bajar_escaleras_barril(TBarriles barril, TLista_coordenadas escaleras, int 
     }
     return false;
 }
-int juego(Tigr *pantalla, int ancho_ventana, int alto_ventana, char nombre[11],float velocidad_ending) {
-    TCoordenadas pantalla_juego, pantalla_estructura, personaje;
+bool nivel2(bool game_over, TCoordenadas *agua, int ancho_ventana, int alto_ventana, Tigr *pantalla_juego, TCoordenadas personaje, float tiempo_total, float *resguardo_agua) {
+    float cantidad_movimiento;
+    // Creacion del color del agua.
+    TPixel color_agua=tigrRGB(7, 100, 230);
+    cantidad_movimiento=0;
+    if(!game_over) {
+        // Elevacion del agua.
+        cantidad_movimiento=10*tiempo_total;
+        cantidad_movimiento=(-cantidad_movimiento);
+        // Calculo de la posicion vertical del agua.
+        *resguardo_agua+=cantidad_movimiento;
+        agua->y=*resguardo_agua;
+    }
+    // Pintar el agua.
+    tigrClear(agua->i, color_agua);
+    // Integracion del agua a la pantalla de juego.
+    tigrBlitAlpha(pantalla_juego, agua->i, agua->x, agua->y, 0, 0, agua->w, agua->h, 0.4);
+    if(!game_over) {
+        return colision_objeto(personaje, *agua);
+    }
+    else {
+        return true;
+    }
+}
+int juego(Tigr *pantalla, int ancho_ventana, int alto_ventana, char nombre[11], float velocidad_ending, int *nivel) {
+    TCoordenadas pantalla_juego, pantalla_estructura, personaje, agua, ovni;
     TNiveles nivel1;
-
-    int elevacion_cierre, seleccion, caso, i, j, ultima_posicion_y, ultima_posicion_x, numero_barriles, gravedad, gravedad_barriles, posicion_escalera;
-    float tiempo_juego, tiempo_barriles, tiempo_total=0, resguardo_gravedad, velocidad_caida, resguardo_movimiento, resguardo_escalera, cantidad_movimiento;
+    int barril_reiniciar, elevacion_cierre, seleccion, caso, i, j, ultima_posicion_y, ultima_posicion_x, numero_barriles, gravedad, gravedad_barriles, posicion_escalera;
+    float tiempo_juego, tiempo_barriles, tiempo_total=0, resguardo_gravedad, velocidad_caida, resguardo_movimiento, resguardo_escalera, cantidad_movimiento, resguardo_agua;
     char ultima_direccion;
     bool cierre, pausa, caida, ending, esta_escalera, colgando, game_over, primer_salto, victoria;
     
-    // Coordenadas y dimensiones de las escaleas del nivel 1.
+    // Asignacion de las coordenadas y dimensiones de las escaleas del nivel 1 y 2.
     for(i=0; i<9; i++) {
         nivel1.escaleras[i].w=3*ancho_ventana/50;
     }
@@ -820,16 +852,25 @@ int juego(Tigr *pantalla, int ancho_ventana, int alto_ventana, char nombre[11],f
     nivel1.escaleras[6].x=16*ancho_ventana/50, nivel1.escaleras[6].y=20*alto_ventana/50, nivel1.escaleras[6].h= 1*alto_ventana/50-2;
     nivel1.escaleras[7].x=43*ancho_ventana/50, nivel1.escaleras[7].y=15*alto_ventana/50, nivel1.escaleras[7].h= 5*alto_ventana/50-1;
     nivel1.escaleras[8].x=12*ancho_ventana/50, nivel1.escaleras[8].y=10*alto_ventana/50, nivel1.escaleras[8].h= 5*alto_ventana/50-1;
-       
-   
-    personaje.x=ancho_ventana/2, personaje.y=alto_ventana/2, personaje.w=18, personaje.h=28;
+    // Asignacion de la coordenadas iniciales del jugador.
+    personaje.x=5, personaje.w=18, personaje.h=28;
+    personaje.y=alto_ventana-personaje.h-2;
+    // Asignacion de las coordenadas y dimensiones de la tarta.
     nivel1.tarta.i=tigrLoadImage("./imagenes/tarta.png"), nivel1.tarta.x=22*ancho_ventana/50, nivel1.tarta.y=5*alto_ventana/50, nivel1.tarta.w=47, nivel1.tarta.h=45;
+    // Asignacion de las coordenadas y dimensiones de la oveja.
+    nivel1.oveja.i=tigrLoadImage("./imagenes/oveja.png"), nivel1.oveja.x=2*ancho_ventana/50, nivel1.oveja.y=11*alto_ventana/50-6, nivel1.oveja.w=57, nivel1.oveja.h=41;
+    // Asignacion de las coordenadas y dimensiones del ovni.
+    ovni.i=tigrLoadImage("./imagenes/ovni.png"), ovni.x=25*ancho_ventana/50, ovni.y=25*alto_ventana/50, ovni.w=28, ovni.h=19;
+    
     pantalla_estructura.x=0, pantalla_estructura.y=0, pantalla_estructura.w=ancho_ventana, pantalla_estructura.h=alto_ventana;
     pantalla_estructura.i=tigrBitmap(pantalla_estructura.w, pantalla_estructura.h);
     pantalla_juego.x=0, pantalla_juego.y=0, pantalla_juego.w=ancho_ventana, pantalla_juego.h=alto_ventana;
-    pantalla_juego.i=tigrBitmap(pantalla_juego.w, pantalla_juego.h);
-    elevacion_cierre=0 , seleccion=1, caso=-1, ultima_posicion_y=personaje.y, ultima_posicion_x=personaje.x, numero_barriles=0, gravedad=900, gravedad_barriles=500, posicion_escalera=0;
-    tiempo_juego=0, tiempo_barriles=0, resguardo_movimiento=personaje.x, resguardo_escalera=personaje.y, cantidad_movimiento=0, resguardo_gravedad=personaje.y, velocidad_caida=0;
+    pantalla_juego.i=tigrBitmap(pantalla_juego.w, pantalla_juego.h); 
+    // Asignacion de las coordenadas y dimensiones del agua.
+    agua.x=0, agua.y=6*alto_ventana/4, agua.w=ancho_ventana, agua.h=alto_ventana;
+    agua.i=tigrBitmap(agua.w, agua.h);
+    barril_reiniciar=0, elevacion_cierre=0 , seleccion=1, caso=-1, ultima_posicion_y=personaje.y, ultima_posicion_x=personaje.x, numero_barriles=0, gravedad=900, gravedad_barriles=500, posicion_escalera=0;
+    tiempo_juego=0, tiempo_barriles=0, resguardo_movimiento=personaje.x, resguardo_escalera=personaje.y, cantidad_movimiento=0, resguardo_gravedad=personaje.y, velocidad_caida=0, resguardo_agua=agua.y;
     ultima_direccion='D';
     // Asignacion de los booleanos.
     cierre=false, pausa=false, caida=true, ending=false, esta_escalera=false, colgando=false, game_over=false, primer_salto=false, victoria=false;
@@ -839,7 +880,6 @@ int juego(Tigr *pantalla, int ancho_ventana, int alto_ventana, char nombre[11],f
     TPixel color_barrajuego=tigrRGB(4,39,195), color_texto=tigrRGB(255,255,255), color_barrajuego2=tigrRGB(144,144,255);
     // Creacion de las variables para saber si estamos encima de un solido y si hay rampas.
     TPixel color_mas_abajo, color_debajo, color_medio, color_arriba;
-
     while((!tigrClosed(pantalla)) && (!cierre)) {
         tiempo_total=Calcular_Tiempo();
         // Limpia el fondo de pantalla.
@@ -855,7 +895,7 @@ int juego(Tigr *pantalla, int ancho_ventana, int alto_ventana, char nombre[11],f
         if(pantalla_juego.y<=-pantalla_juego.h) {
             cierre=true;
         }
-        if((!game_over) && (!ending)) {
+        if((!game_over) && (!ending) && (!victoria)) {
             // Calcula el tiempo de juego.
             tiempo_juego+=tiempo_total;
             tiempo_barriles+=tiempo_total;
@@ -915,7 +955,7 @@ int juego(Tigr *pantalla, int ancho_ventana, int alto_ventana, char nombre[11],f
                     }
                 }
             }
-            // Saber si estas en el aire o no.
+            // Saber si el jugador esta en el aire o no.
             color_debajo=tigrGet(pantalla_estructura.i, personaje.x+personaje.w/2, personaje.y+personaje.h+1);
             if((!colgando) && (color_debajo.r!=color_solido.r) && (color_debajo.g!=color_solido.g) && (color_debajo.b!=color_solido.b)) {
                 caida=true;
@@ -959,7 +999,7 @@ int juego(Tigr *pantalla, int ancho_ventana, int alto_ventana, char nombre[11],f
                 caida=true;
                 colgando=false;
             }
-            // Saber si esta en las escaleras.
+            // Saber si el jugador esta en las escaleras.
             esta_escalera=ver_escalera(personaje, nivel1.escaleras);
             // Subir escaleras.
             if(esta_escalera) {
@@ -975,7 +1015,7 @@ int juego(Tigr *pantalla, int ancho_ventana, int alto_ventana, char nombre[11],f
             else {
                 colgando=false;
             }
-            // Calculo de la gravedad.
+            // Calculo de la gravedad del jugador.
             if((caida) && (!colgando)) {
                 velocidad_caida+=gravedad*tiempo_total;
                 resguardo_gravedad+=velocidad_caida*tiempo_total;
@@ -1002,25 +1042,30 @@ int juego(Tigr *pantalla, int ancho_ventana, int alto_ventana, char nombre[11],f
                     }
                 }
             }
-            // Generar nuevo barril.
-            if((tiempo_barriles>4) && (numero_barriles!=15)) {
-                numero_barriles++;
+            // Generar nuevo barril y reiniciar posicion barriles.
+            if(tiempo_barriles>4) {
                 tiempo_barriles=0;
-                nivel1.barriles[numero_barriles-1].coordenadas.i=tigrLoadImage("./imagenes/barril.png"), nivel1.barriles[numero_barriles-1].coordenadas.x=9*ancho_ventana/50,  nivel1.barriles[numero_barriles-1].coordenadas.y=13*alto_ventana/50-3 ,  nivel1.barriles[numero_barriles-1].coordenadas.w=20, nivel1.barriles[numero_barriles-1].coordenadas.h=20;
-                nivel1.barriles[numero_barriles-1].direccion='D';
-                nivel1.barriles[numero_barriles-1].resguardo=nivel1.barriles[numero_barriles-1].coordenadas.x;
-                nivel1.barriles[numero_barriles-1].caida=false;
-                nivel1.barriles[numero_barriles-1].velocidad_caida=0;
-                nivel1.barriles[numero_barriles-1].resguardo_gravedad=nivel1.barriles[numero_barriles-1].coordenadas.y;
-                nivel1.barriles[numero_barriles-1].ultima_posicion_y=nivel1.barriles[numero_barriles-1].coordenadas.y;
-                nivel1.barriles[numero_barriles-1].ultima_posicion_x=nivel1.barriles[numero_barriles-1].coordenadas.x;
-            
+                nivel1.barriles[barril_reiniciar].coordenadas.i=tigrLoadImage("./imagenes/barril.png"), nivel1.barriles[barril_reiniciar].coordenadas.x=9*ancho_ventana/50,  nivel1.barriles[barril_reiniciar].coordenadas.y=13*alto_ventana/50-3 ,  nivel1.barriles[barril_reiniciar].coordenadas.w=20, nivel1.barriles[barril_reiniciar].coordenadas.h=20;
+                nivel1.barriles[barril_reiniciar].direccion='D';
+                nivel1.barriles[barril_reiniciar].resguardo=nivel1.barriles[barril_reiniciar].coordenadas.x;
+                nivel1.barriles[barril_reiniciar].caida=false;
+                nivel1.barriles[barril_reiniciar].velocidad_caida=0;
+                nivel1.barriles[barril_reiniciar].resguardo_gravedad=nivel1.barriles[barril_reiniciar].coordenadas.y;
+                nivel1.barriles[barril_reiniciar].ultima_posicion_y=nivel1.barriles[barril_reiniciar].coordenadas.y;
+                nivel1.barriles[barril_reiniciar].ultima_posicion_x=nivel1.barriles[barril_reiniciar].coordenadas.x;
+                barril_reiniciar++;
+                if(barril_reiniciar==10) {
+                    barril_reiniciar=0;
+                }
+                if(numero_barriles!=10) {
+                    numero_barriles++;
+                }
             }
             // Desplazamiento de los barriles horizontalmente.
             for(i=0; i<numero_barriles; i++) {
                 if(!nivel1.barriles[i].caida) {
-                    nivel1.barriles[i].cantidad_movimiento=100*tiempo_total;
-                    if(nivel1.barriles[i].direccion=='I'){
+                    nivel1.barriles[i].cantidad_movimiento=50*tiempo_total;
+                    if(nivel1.barriles[i].direccion=='I') {
                         nivel1.barriles[i].cantidad_movimiento=(-nivel1.barriles[i].cantidad_movimiento);
                     }
                     nivel1.barriles[i].resguardo+=nivel1.barriles[i].cantidad_movimiento;
@@ -1117,12 +1162,18 @@ int juego(Tigr *pantalla, int ancho_ventana, int alto_ventana, char nombre[11],f
                         }
                     }
                 }
-            }
-            // Comprobar si se ha chocado con el jugador.
-            for(i=0; i<numero_barriles; i++) {
-                if(colision_barril(personaje, nivel1.barriles[i].coordenadas)) {
+                // Comprobar si un barril se ha chocado con el jugador.
+                if(colision_objeto(personaje, nivel1.barriles[i].coordenadas)) {
                     game_over=true;
                 }
+            }
+            // Comprobar si el jugador ha colisionado con la oveja.
+            if(!game_over) {
+                game_over=colision_objeto(personaje, nivel1.oveja);
+            }
+            // Comprobar si el jugador ha llegado a la tarta.
+            if(!game_over) {
+                victoria=colision_objeto(personaje, nivel1.tarta);
             }
         }
         // Efecto de muerte.
@@ -1152,11 +1203,20 @@ int juego(Tigr *pantalla, int ancho_ventana, int alto_ventana, char nombre[11],f
         }
         // Pinta la tarta.
         tigrBlitAlpha(pantalla_juego.i, nivel1.tarta.i, nivel1.tarta.x, nivel1.tarta.y, 0, 0, nivel1.tarta.w, nivel1.tarta.h, 1);
+        // Pinta la oveja.
+        tigrBlitAlpha(pantalla_juego.i, nivel1.oveja.i, nivel1.oveja.x, nivel1.oveja.y, 0, 0, nivel1.oveja.w, nivel1.tarta.h, 1);
         // Pinta el jugador por pantalla.
         tigrBlitAlpha(pantalla_juego.i, personaje.i, personaje.x, personaje.y, 0, 0, personaje.w, personaje.h, 1);
+        // Exclusivo del nivel 2.
+        if(*nivel==2) {
+            game_over=nivel2(game_over, &agua, ancho_ventana, alto_ventana, pantalla_juego.i, personaje, tiempo_total, &resguardo_agua);
+            tigrBlitAlpha(pantalla_juego.i, ovni.i, ovni.x, ovni.y, 0, 0, ovni.w, ovni.h, 1);
+        }
         // Integracion de la barra del juego.
         barra_juego(pantalla_juego.i, ancho_ventana, alto_ventana, nombre,tiempo_juego, color_barrajuego, color_texto, color_barrajuego2);
+        // Integracion de la ventana de juego a la pantalla de juego.
         tigrBlitAlpha(pantalla, pantalla_juego.i, pantalla_juego.x, pantalla_juego.y, 0, 0, pantalla_juego.w, pantalla_juego.h, 1);
+        // Muestra la pantalla de game over.
         if((personaje.y>alto_ventana+alto_ventana/4) && (game_over) && (!ending)) {
             personaje.y=2*alto_ventana;
             ending=imprimir_game_over(pantalla, ancho_ventana, alto_ventana, &seleccion, &caso);
@@ -1167,38 +1227,127 @@ int juego(Tigr *pantalla, int ancho_ventana, int alto_ventana, char nombre[11],f
             ultima_posicion_y=personaje.y;
             personaje.y=resguardo_gravedad;
         }
+        // Muestra la pantalla victoria.
+        if((victoria) && (!ending)) {
+            ending=imprimir_victoria(pantalla, ancho_ventana, alto_ventana, &seleccion, &caso);
+        }
         // Actualiza la imagen.
         tigrUpdate(pantalla);
     }
     return caso;
 }
-int selector_de_niveles(Tigr *pantalla, int ancho_ventana, int alto_ventana) {
-    TCoordenadas cursor,pantalla_niveles,boton_nivel1,boton_nivel2;
-    bool cierre = false;
+int selector_de_niveles(Tigr *pantalla, int ancho_ventana, int alto_ventana, int *nivel, float velocidad_ending) {
+    TCoordenadas cursor, pantalla_niveles, boton_nivel1, boton_nivel2, plantilla;
+    int caso, click=0, last_click=0, seleccion, elevacion_cierre=0;
     float tiempo_total=0;
-    pantalla_niveles.x=0, pantalla_niveles.y=0, pantalla_niveles.w=ancho_ventana, pantalla_niveles.h=alto_ventana;
-
-    pantalla_niveles.i=tigrBitmap(pantalla_niveles.w, pantalla_niveles.h);
-    boton_nivel1.x=4*ancho_ventana/16, boton_nivel1.y=8*alto_ventana/16, boton_nivel1.w=8*ancho_ventana/16, boton_nivel1.h=2*alto_ventana/16;
-    boton_nivel2.x=4*ancho_ventana/16, boton_nivel2.y=12*alto_ventana/16, boton_nivel2.w=8*ancho_ventana/16, boton_nivel2.h=2*alto_ventana/16;
-    TPixel tema_niveles = tigrRGB(40, 131, 250);
- while((!tigrClosed(pantalla)) && (!cierre)) {
-        // Calculo del tiempo que tarda el ordenador en ejecutar un ciclo del programa.
-    tiempo_total=Calcular_Tiempo();
+    bool cierre, ending;
+    TPixel tema_nivel1,tema_nivel2;
+    TPixel tema_niveles= tigrRGB(116, 130, 252), tema_nombre_niveles=tigrRGB(40, 131, 250), color_azul=tigrRGB(69, 0, 98),presionado=tigrRGB(70,83,199), color_morado=tigrRGB(160, 0, 100);
+    
     cursor.i=tigrLoadImage("./imagenes/cursor.png"), cursor.x=0, cursor.y=0;
- //          tigrFill(pantalla_niveles.i, boton_nivel1.x, boton_nivel1.y, boton_nivel1.w, 2, tema_niveles);
-            //  tigrFill(pantalla_niveles.i, boton_nivel1.x, boton_nivel1.y, 2, boton_nivel1.h, tema_niveles);
-            //tigrFill(pantalla_niveles.i, boton_nivel1.x+boton_nivel1.w-2, boton_nivel1.y, 2, boton_nivel1.h, tema_niveles);
-            //tigrFill(pantalla_niveles.i, boton_nivel1.x, boton_nivel1.y+boton_nivel1.h-2, boton_nivel1.w, 2, tema_niveles);
- }
-
-    tigrClear(pantalla, tigrRGB(0, 0, 0));
-    tigrBlitAlpha(pantalla, pantalla_niveles.i, pantalla_niveles.x, pantalla_niveles.y, 0, 0, pantalla_niveles.w, pantalla_niveles.h, 1);
-    tigrClear(pantalla_niveles.i, tigrRGB(0, 0, 0));
+    // Asignacion de las coordenadas y las dimensiones de la pantalla niveles.
+    pantalla_niveles.x=0, pantalla_niveles.y=0, pantalla_niveles.w=ancho_ventana, pantalla_niveles.h=alto_ventana;
+    pantalla_niveles.i=tigrBitmap(pantalla_niveles.w, pantalla_niveles.h);
+    plantilla.x=ancho_ventana/8, plantilla.y=alto_ventana/10, plantilla.w=6*ancho_ventana/8, plantilla.h=8*alto_ventana/10;
+    boton_nivel1.x=4*ancho_ventana/16, boton_nivel1.y=4*alto_ventana/16, boton_nivel1.w=8*ancho_ventana/16, boton_nivel1.h=2*alto_ventana/16;
+    boton_nivel2.x=4*ancho_ventana/16, boton_nivel2.y=10*alto_ventana/16, boton_nivel2.w=8*ancho_ventana/16, boton_nivel2.h=2*alto_ventana/16;
+    
+    caso=-1;
+    
+    cierre=false, ending=false;
+    
+    while((!tigrClosed(pantalla)) && (!cierre)) {
+        tiempo_total=Calcular_Tiempo();
+        tigrMouse(pantalla, &cursor.x, &cursor.y, &click);
+        // Elevacion del cierre.
+        if(ending) {
+            elevacion_cierre=velocidad_ending*tiempo_total;
+            pantalla_niveles.y-=elevacion_cierre;
+        }
+        // Comprobacion de si la ventana se va ha cerrar.
+        if(pantalla_niveles.y<=-pantalla_niveles.h) {
+            cierre=true;
+        }
+        // Detecta que boton esta seleccionado.
+        if((!ending) && (cursor.x>=boton_nivel1.x) && (cursor.y>=boton_nivel1.y) && (cursor.x<=boton_nivel1.x+boton_nivel1.w) && (cursor.y<=boton_nivel1.y+boton_nivel1.h)) {
+            seleccion=1; 
+        }
+        else if((!ending) && (cursor.x>=boton_nivel2.x) && (cursor.y>=boton_nivel2.y) && (cursor.x<=boton_nivel2.x+boton_nivel2.w) && (cursor.y<=boton_nivel2.y+boton_nivel2.h)) {
+            seleccion=2;
+        }
+        else if(!ending){
+            seleccion=-1;
+        }
+        switch(seleccion){
+            case 1:
+                tema_nivel1=presionado;
+                tema_nivel2=tema_niveles;
+                if((click==1) && (last_click==0)) {
+                    *nivel=1;
+                    caso=1;
+                    ending=true;
+                }
+                break;
+            case 2:
+                tema_nivel1=tema_niveles;
+                tema_nivel2=presionado;
+                if((click==1) && (last_click==0)) {
+                    *nivel=2;
+                    caso=1;
+                    ending=true;
+                 }
+            break;
+            case -1:
+                tema_nivel1=tema_niveles;
+                tema_nivel2=tema_niveles;
+                break;
+        }
+        last_click=click;
+        // Limpia el fondo de la pantalla.
+        tigrClear(pantalla, tigrRGB(0, 0, 0));
+        if(!ending) {
+            // Limpia la pantalla de niveles.
+            tigrClear(pantalla_niveles.i, tigrRGB(0, 0, 0));
+            // Obtiene la posición del cursor y si esta haciendo click.
+            tigrPrint(pantalla_niveles.i, tfont, 15*ancho_ventana/50-1, 2*alto_ventana/50+3, tigrRGB(255,255,255), "Selecciona el nivel a jugar:", 0);
+            // Pinta la plantilla.
+            tigrFill(pantalla_niveles.i, plantilla.x, plantilla.y, plantilla.w, plantilla.h, color_azul);
+            // Marco plantilla.
+            tigrFill(pantalla_niveles.i, plantilla.x, plantilla.y, plantilla.w, 3, color_morado);
+            tigrFill(pantalla_niveles.i, plantilla.x, plantilla.y, 3, plantilla.h, color_morado);
+            tigrFill(pantalla_niveles.i, plantilla.x+plantilla.w-3, plantilla.y, 3, plantilla.h, color_morado);
+            tigrFill(pantalla_niveles.i, plantilla.x, plantilla.y+plantilla.h-3, plantilla.w, 3, color_morado);
+            // Pinta los botones.
+            tigrFill(pantalla_niveles.i, boton_nivel1.x, boton_nivel1.y, boton_nivel1.w, boton_nivel1.h, tema_nivel1);
+            tigrFill(pantalla_niveles.i, boton_nivel2.x, boton_nivel2.y, boton_nivel2.w, boton_nivel2.h , tema_nivel2);
+            // Pinta el texto de los botones.
+            tigrPrint(pantalla_niveles.i, tfont, 9*ancho_ventana/20-4 , 6*alto_ventana/20+1, tema_nombre_niveles , "NIVEL 1", 0);
+            tigrPrint(pantalla_niveles.i, tfont, 9*ancho_ventana/20-4 , 14*alto_ventana/20-9, tema_nombre_niveles , "NIVEL 2", 0);
+            //Marco boton nivel 1
+            tigrFill(pantalla_niveles.i, boton_nivel1.x, boton_nivel1.y, boton_nivel1.w, 2, color_morado);
+            tigrFill(pantalla_niveles.i, boton_nivel1.x, boton_nivel1.y, 2, boton_nivel1.h, color_morado);
+            tigrFill(pantalla_niveles.i, boton_nivel1.x+boton_nivel1.w-2, boton_nivel1.y, 2, boton_nivel1.h, color_morado);
+            tigrFill(pantalla_niveles.i, boton_nivel1.x, boton_nivel1.y+boton_nivel1.h-2, boton_nivel1.w, 2, color_morado);
+            //Marco boton nivel 2
+            tigrFill(pantalla_niveles.i, boton_nivel2.x, boton_nivel2.y, boton_nivel2.w, 2, color_morado);
+            tigrFill(pantalla_niveles.i, boton_nivel2.x, boton_nivel2.y, 2, boton_nivel2.h, color_morado);
+            tigrFill(pantalla_niveles.i, boton_nivel2.x+boton_nivel2.w-2, boton_nivel2.y, 2, boton_nivel2.h, color_morado);
+            tigrFill(pantalla_niveles.i, boton_nivel2.x, boton_nivel2.y+boton_nivel2.h-2, boton_nivel2.w, 2, color_morado);
+            // Pinta cursor personalizado.
+            tigrBlitAlpha(pantalla_niveles.i, cursor.i, cursor.x, cursor.y, 0, 0, 32, 32, 1);
+        }
+        // Integracion de la ventana niveles a la pantalla
+        tigrBlitAlpha(pantalla, pantalla_niveles.i, pantalla_niveles.x, pantalla_niveles.y, 0, 0, pantalla_niveles.w, pantalla_niveles.h, 1);
+        // Refresca la imagen.
+        tigrUpdate(pantalla);
+    }
+    return caso;
 }
 int main() {
     // Establecimiento de la primera pantalla en abrirse.
     int caso=0;
+    // Establecimiento del nivel al que ir.
+    int nivel=1;
     // Establecimiento de las dimensiones de la ventana del juego.
     int ancho_ventana=400, alto_ventana=450;
     // Establecimieto de la velocidad de cierre de las diferentes pantallas del juego.
@@ -1216,18 +1365,19 @@ int main() {
     // Abre el menu.
     do {
         switch(caso) {
-            case 0: caso=menu(pantalla, ancho_ventana, alto_ventana, velocidad_cierre);
+            case 0: caso=menu(pantalla, ancho_ventana, alto_ventana, velocidad_cierre, &nivel);
                     break;
             case 1: caso=poner_nombre(pantalla, ancho_ventana, alto_ventana, nombre, velocidad_cierre);
                     break;
-            case 2: caso=juego(pantalla, ancho_ventana, alto_ventana, nombre,velocidad_cierre);
+            case 2: caso=juego(pantalla, ancho_ventana, alto_ventana, nombre,velocidad_cierre, &nivel);
                     break;
-            case 3: caso=selector_de_niveles(pantalla, ancho_ventana, alto_ventana);
+            case 3: caso=juego(pantalla, ancho_ventana, alto_ventana, nombre,velocidad_cierre, &nivel);
                     break;
+            case 4: caso=selector_de_niveles(pantalla, ancho_ventana, alto_ventana, &nivel, velocidad_cierre);
         }
     } while(caso!=-1);
     // Cierre de la ventana del juego.
     tigrFree(pantalla);
-    printf("Juego cerrado.\n");
+    printf("Juego cerrado.\n"); 
     return 0;
 }
