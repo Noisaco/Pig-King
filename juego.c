@@ -1,6 +1,7 @@
 #include<stdio.h> // Se copila con gcc ./tigr/tigr.c juego.c -o juego -I./tigr -lGLU -lGL -lX11
 #include<stdbool.h>
 #include"./tigr/tigr.h"
+#define FICHERO_TIEMPOS "tiempos.texto"
 
 typedef struct { // Establecimiento del registro de imagen, coordenadas y dimensiones de los diferentes elementos del juego.
     Tigr *i;
@@ -74,7 +75,7 @@ void pintar_titulo_y_sombra(Tigr *transparencia_titulo, TPixel cuerpo_o_sombra) 
 }
 // Modulo que muestra el menu.
 int menu(Tigr *pantalla, int ancho_ventana, int alto_ventana, float velocidad_ending, int *nivel) {
-    TCoordenadas cursor, cortina, plantilla, titulo, sombra, boton_jugar, boton_niveles, boton_puntuacion, pantalla_menu;
+    TCoordenadas cursor, cortina, plantilla, titulo, sombra, boton_jugar, boton_niveles, boton_creditos, pantalla_menu;
    
     pantalla_menu.x=0, pantalla_menu.y=0, pantalla_menu.w=ancho_ventana, pantalla_menu.h=alto_ventana;
     pantalla_menu.i=tigrBitmap(pantalla_menu.w, pantalla_menu.h);
@@ -92,7 +93,7 @@ int menu(Tigr *pantalla, int ancho_ventana, int alto_ventana, float velocidad_en
     // Creacion de las coordenadas y las dimensiones de los botones.
     boton_jugar.x=ancho_ventana, boton_jugar.y=alto_ventana, boton_jugar.w=0, boton_jugar.h=2*alto_ventana/16;
     boton_niveles.x=ancho_ventana, boton_niveles.y=alto_ventana, boton_niveles.w=0, boton_niveles.h=2*alto_ventana/16;
-    boton_puntuacion.x=ancho_ventana, boton_puntuacion.y=alto_ventana, boton_puntuacion.w=0, boton_puntuacion.h=2*alto_ventana/16;
+    boton_creditos.x=ancho_ventana, boton_creditos.y=alto_ventana, boton_creditos.w=0, boton_creditos.h=2*alto_ventana/16;
 
     int aparicion_botones=1, seleccion=-1, click=0, last_click=0, botes=0, elevacion=0, elevacion_cierre=0, i=0, j=0;
     // Creacion de los diferentes controladores de tiempo.
@@ -101,9 +102,9 @@ int menu(Tigr *pantalla, int ancho_ventana, int alto_ventana, float velocidad_en
     bool plantilla_terminada, cierre, permitido, opening, ending;
     TPixel color_morado=tigrRGB(160, 0, 100), color_azul=tigrRGB(69, 0, 98), cuerpo_o_sombra, tema_actual, tema1=tigrRGB(40, 131, 250), tema2=tigrRGB(252, 221, 78), color_sombra=tigrRGB(26, 6, 92);
     // Creacion del color de los botones.
-    TPixel presion_boton_jugar, presion_boton_niveles, presion_boton_puntuacion, si_presionado=tigrRGB(70,83,199),  no_presionado=tigrRGB(116, 130, 252), color_seleccionado=tigrRGB(9, 176, 70);
+    TPixel presion_boton_jugar, presion_boton_niveles, presion_boton_creditos, si_presionado=tigrRGB(70,83,199),  no_presionado=tigrRGB(116, 130, 252), color_seleccionado=tigrRGB(9, 176, 70);
     // Creacion del tema de los botones.
-    TPixel tema_boton_jugar, tema_boton_niveles, tema_boton_puntuacion;
+    TPixel tema_boton_jugar, tema_boton_niveles, tema_boton_creditos;
     Tigr *transparencia_titulo;
     // Asignacion del tema principal inicial.
     tema_actual=tema1;
@@ -190,16 +191,16 @@ int menu(Tigr *pantalla, int ancho_ventana, int alto_ventana, float velocidad_en
                             aparicion_botones=3;
                         }
                         break;
-                // Aparicion del boton Puntuacion.
-                case 3: boton_puntuacion.w=9*ancho_ventana/16;
-                        boton_puntuacion.h=3*alto_ventana/16;
-                        boton_puntuacion.x=3.5*ancho_ventana/16;
-                        boton_puntuacion.y=11.5*alto_ventana/16;
+                // Aparicion del boton creditos.
+                case 3: boton_creditos.w=9*ancho_ventana/16;
+                        boton_creditos.h=3*alto_ventana/16;
+                        boton_creditos.x=3.5*ancho_ventana/16;
+                        boton_creditos.y=11.5*alto_ventana/16;
                         if(tiempo_botones>0.2) {
-                            boton_puntuacion.w=8*ancho_ventana/16;
-                            boton_puntuacion.h=2*alto_ventana/16;
-                            boton_puntuacion.x=4*ancho_ventana/16;
-                            boton_puntuacion.y=12*alto_ventana/16;
+                            boton_creditos.w=8*ancho_ventana/16;
+                            boton_creditos.h=2*alto_ventana/16;
+                            boton_creditos.x=4*ancho_ventana/16;
+                            boton_creditos.y=12*alto_ventana/16;
                             opening=false;
                         }
                         break;
@@ -214,18 +215,18 @@ int menu(Tigr *pantalla, int ancho_ventana, int alto_ventana, float velocidad_en
         else if((!opening) && (!ending) && (cursor.x>=boton_niveles.x) && (cursor.y>=boton_niveles.y) && (cursor.x<=boton_niveles.x+boton_niveles.w) && (cursor.y<=boton_niveles.y+boton_niveles.h)) {
             seleccion=4;
         }
-        else if((!opening) && (!ending) && (cursor.x>=boton_puntuacion.x) && (cursor.y>=boton_puntuacion.y) && (cursor.x<=boton_puntuacion.x+boton_puntuacion.w) && (cursor.y<=boton_puntuacion.y+boton_puntuacion.h)) {
-            seleccion=3;
+        else if((!opening) && (!ending) && (cursor.x>=boton_creditos.x) && (cursor.y>=boton_creditos.y) && (cursor.x<=boton_creditos.x+boton_creditos.w) && (cursor.y<=boton_creditos.y+boton_creditos.h)) {
+            seleccion=5;
         }
         else if((!ending)) {
             seleccion=-1;
         }
         presion_boton_jugar=no_presionado;
         presion_boton_niveles=no_presionado;
-        presion_boton_puntuacion=no_presionado;
+        presion_boton_creditos=no_presionado;
         tema_boton_jugar=tema_actual;
         tema_boton_niveles=tema_actual;
-        tema_boton_puntuacion=tema_actual;
+        tema_boton_creditos=tema_actual;
         switch(seleccion) {
             case 1: presion_boton_jugar=si_presionado;
                     tema_boton_jugar=color_seleccionado;
@@ -240,8 +241,8 @@ int menu(Tigr *pantalla, int ancho_ventana, int alto_ventana, float velocidad_en
                         ending=true;
                     }
                     break;
-            case 3: presion_boton_puntuacion=si_presionado;
-                    tema_boton_puntuacion=color_seleccionado;
+            case 5:  presion_boton_creditos=si_presionado;
+                    tema_boton_creditos=color_seleccionado;
                     if((click==1) && (last_click==0)) {
                         ending=true;
                     }
@@ -291,7 +292,7 @@ int menu(Tigr *pantalla, int ancho_ventana, int alto_ventana, float velocidad_en
             // Botones.
             tigrFill(pantalla_menu.i, boton_jugar.x, boton_jugar.y, boton_jugar.w, boton_jugar.h, presion_boton_jugar);
             tigrFill(pantalla_menu.i, boton_niveles.x, boton_niveles.y, boton_niveles.w, boton_niveles.h, presion_boton_niveles);
-            tigrFill(pantalla_menu.i, boton_puntuacion.x, boton_puntuacion.y, boton_puntuacion.w, boton_puntuacion.h, presion_boton_puntuacion);
+            tigrFill(pantalla_menu.i, boton_creditos.x, boton_creditos.y, boton_creditos.w, boton_creditos.h, presion_boton_creditos);
             // Marco boton Jugar.
             tigrFill(pantalla_menu.i, boton_jugar.x, boton_jugar.y, boton_jugar.w, 2, tema_boton_jugar);
             tigrFill(pantalla_menu.i, boton_jugar.x, boton_jugar.y, 2, boton_jugar.h, tema_boton_jugar);
@@ -302,11 +303,11 @@ int menu(Tigr *pantalla, int ancho_ventana, int alto_ventana, float velocidad_en
             tigrFill(pantalla_menu.i, boton_niveles.x, boton_niveles.y, 2, boton_niveles.h, tema_boton_niveles);
             tigrFill(pantalla_menu.i, boton_niveles.x+boton_niveles.w-2, boton_niveles.y, 2, boton_niveles.h, tema_boton_niveles);
             tigrFill(pantalla_menu.i, boton_niveles.x, boton_niveles.y+boton_niveles.h-2, boton_niveles.w, 2, tema_boton_niveles);
-            // Marco boton Puntuacion.
-            tigrFill(pantalla_menu.i, boton_puntuacion.x, boton_puntuacion.y, boton_puntuacion.w, 2, tema_boton_puntuacion);
-            tigrFill(pantalla_menu.i, boton_puntuacion.x, boton_puntuacion.y, 2, boton_puntuacion.h, tema_boton_puntuacion);
-            tigrFill(pantalla_menu.i, boton_puntuacion.x+boton_puntuacion.w-2, boton_puntuacion.y, 2, boton_puntuacion.h, tema_boton_puntuacion);
-            tigrFill(pantalla_menu.i, boton_puntuacion.x, boton_puntuacion.y+boton_puntuacion.h-2, boton_puntuacion.w, 2, tema_boton_puntuacion);
+            // Marco boton creditos.
+            tigrFill(pantalla_menu.i, boton_creditos.x, boton_creditos.y, boton_creditos.w, 2, tema_boton_creditos);
+            tigrFill(pantalla_menu.i, boton_creditos.x, boton_creditos.y, 2, boton_creditos.h, tema_boton_creditos);
+            tigrFill(pantalla_menu.i, boton_creditos.x+boton_creditos.w-2, boton_creditos.y, 2, boton_creditos.h, tema_boton_creditos);
+            tigrFill(pantalla_menu.i, boton_creditos.x, boton_creditos.y+boton_creditos.h-2, boton_creditos.w, 2, tema_boton_creditos);
             // Textos de los botones.
             if(aparicion_botones>=2) {
                 tigrPrint(pantalla_menu.i, tfont, 7.35*ancho_ventana/16 , 6.85*alto_ventana/16, tema_boton_jugar, "JUGAR", 0);
@@ -315,10 +316,9 @@ int menu(Tigr *pantalla, int ancho_ventana, int alto_ventana, float velocidad_en
                 tigrPrint(pantalla_menu.i, tfont, 7*ancho_ventana/16 , 9.85*alto_ventana/16, tema_boton_niveles, "NIVELES", 0);
             }
             if(opening==false) {
-                tigrPrint(pantalla_menu.i, tfont, 6.6*ancho_ventana/16 , 12.85*alto_ventana/16, tema_boton_puntuacion, "PUNTUACIÓN", 0);
+                tigrPrint(pantalla_menu.i, tfont, 6.6*ancho_ventana/16 , 12.85*alto_ventana/16, tema_boton_creditos, "CREDITOS", 0);
             }
-            // Texto de los creditos.
-            tigrPrint(pantalla_menu.i, tfont, 5, alto_ventana-15, tigrRGB(225, 225, 225), "Hecho por: Alexander Veldemar, Danil Launov y Andrés Maciá.", 0);
+        
             // Pinta cursor personalizado.
             tigrBlitAlpha(pantalla_menu.i, cursor.i, cursor.x, cursor.y, 0, 0, 32, 32, 1);
         }
@@ -335,9 +335,12 @@ int menu(Tigr *pantalla, int ancho_ventana, int alto_ventana, float velocidad_en
     return seleccion;
 }
 int poner_nombre(Tigr *pantalla, int ancho_ventana, int alto_ventana, char nombre[11],float velocidad_ending) {
-    TCoordenadas pantalla_nombre;
+    TCoordenadas pantalla_nombre, boton_escape;
+    TPixel color_escape=tigrRGB(160, 0, 100), color_texto=tigrRGB(255,255,255);
     // Asignacion de las coordenadas y las dimensiones de la pantalla de cambiar nombre.
     pantalla_nombre.x=0, pantalla_nombre.y=0, pantalla_nombre.w=ancho_ventana, pantalla_nombre.h=alto_ventana;
+    //Asignacion de la coordenadas del boton escape.
+    boton_escape.x=2*ancho_ventana/50, boton_escape.y=45*alto_ventana/50, boton_escape.w=ancho_ventana/8, boton_escape.h=alto_ventana/10;
     pantalla_nombre.i=tigrBitmap(pantalla_nombre.w, pantalla_nombre.h);
     // Creacion de la variable que guarda el nombre del jugador.
     // Creacion de las diversas variables de tipo entero.
@@ -378,6 +381,7 @@ int poner_nombre(Tigr *pantalla, int ancho_ventana, int alto_ventana, char nombr
             nombre[posicion_escritura]=(char)tecla;
             posicion_escritura++;
         }
+        // Vuelve al menu.
         else if((tigrKeyHeld(pantalla, TK_ESCAPE)) && (!ending)) {
             ending=true;
             caso=0;
@@ -402,6 +406,14 @@ int poner_nombre(Tigr *pantalla, int ancho_ventana, int alto_ventana, char nombr
             tigrPrint(pantalla_nombre.i, tfont, ancho_ventana/6, alto_ventana/6, tigrRGB(252, 252, 252), "Introduce tu nombre:", 0);
             tigrPrint(pantalla_nombre.i, tfont, ancho_ventana/6+140, alto_ventana/6, tigrRGB(117, 227, 20),"%s", nombre);
         }
+        //Rectangulo de ESCAPE marco ESC.
+        tigrFill(pantalla_nombre.i, boton_escape.x, boton_escape.y, boton_escape.w, boton_escape.h, color_escape);
+        tigrPrint(pantalla_nombre.i, tfont, 3*ancho_ventana/50+7, 46*alto_ventana/50, color_texto, "ESC");
+        tigrPrint(pantalla_nombre.i, tfont, 2*ancho_ventana/50+4, 48*alto_ventana/50, color_texto, "VOLVER");
+        tigrFill(pantalla_nombre.i, boton_escape.x, boton_escape.y, boton_escape.w, 2, color_texto);
+        tigrFill(pantalla_nombre.i, boton_escape.x, boton_escape.y, 2, boton_escape.h, color_texto);
+        tigrFill(pantalla_nombre.i, boton_escape.x+boton_escape.w-2, boton_escape.y, 2, boton_escape.h, color_texto);
+        tigrFill(pantalla_nombre.i, boton_escape.x, boton_escape.y+boton_escape.h-2, boton_escape.w, 2, color_texto);
         // Actualiza la imagen.
         tigrUpdate(pantalla);
     }
@@ -474,15 +486,23 @@ void pintar_barriles(Tigr *pantalla_juego, int numero_barriles, TLista_barriles 
         tigrBlitAlpha(pantalla_juego, barriles[i].coordenadas.i, barriles[i].coordenadas.x, barriles[i].coordenadas.y, 0, 0, barriles[i].coordenadas.w, barriles[i].coordenadas.h, 1);
     }
 }
-void barra_juego(Tigr *pantalla_juego, int ancho_ventana, int alto_ventana, char nombre[11],float tiempo_juego, TPixel color_barrajuego, TPixel color_texto, TPixel color_barrajuego2) {
+void barra_juego(Tigr *pantalla_juego, int ancho_ventana, int alto_ventana, char nombre[11],float tiempo_juego, TPixel color_barrajuego, TPixel color_texto, TPixel color_barrajuego2, int nivel) {
     TCoordenadas marco;
     int i, minutos_juego=(int)(tiempo_juego/60), segundos_juego=(int)tiempo_juego%60;
    
     // Rectangulo de la barra de juego.
     marco.x=0, marco.y=0, marco.w=ancho_ventana, marco.h=36;
     tigrFill(pantalla_juego, marco.x, marco.y, marco.w, marco.h, color_barrajuego);
+    
+    if(nivel==2){
+        tigrPrint(pantalla_juego, tfont, 15*ancho_ventana/50, 2*alto_ventana/53, color_texto, "NIVEL 2", 1);
+    }
+    else{
+        tigrPrint(pantalla_juego, tfont, 15*ancho_ventana/50, 2*alto_ventana/53, color_texto, "NIVEL 1", 1);
 
-    tigrPrint(pantalla_juego, tfont, 2*ancho_ventana/50, 2*alto_ventana/53, color_texto,"%s", nombre);
+    }
+
+    tigrPrint(pantalla_juego, tfont, 2*ancho_ventana/50, 2*alto_ventana/53, color_texto, "%s", nombre);
     tigrPrint(pantalla_juego, tfont, 38*ancho_ventana/50, 2*alto_ventana/53, color_texto, "Tiempo:", 1);
     tigrPrint(pantalla_juego, tfont, 44*ancho_ventana/50, 2*alto_ventana/53, color_texto, "%02d:", minutos_juego);
     tigrPrint(pantalla_juego, tfont, 46*ancho_ventana/50+2, 2*alto_ventana/53, color_texto, "%02d", segundos_juego);
@@ -611,7 +631,7 @@ bool imprimir_game_over(Tigr *pantalla, int ancho_ventana, int alto_ventana, int
     tigrBlitAlpha(pantalla, pantalla_gameover.i, pantalla_gameover.x, pantalla_gameover.y, 0, 0, pantalla_gameover.w, pantalla_gameover.h, 1);
     return false;
 }
-bool imprimir_victoria(Tigr *pantalla, int ancho_ventana, int alto_ventana, int *seleccion, int *caso) {
+bool imprimir_victoria(Tigr *pantalla, int ancho_ventana, int alto_ventana, int *seleccion,int *caso, int nivel) {
     TCoordenadas pantalla_victoria, boton_menu, boton_nivel;
     int i,tecla;
     TPixel presion_boton_menu, presion_boton_nivel;
@@ -626,7 +646,8 @@ bool imprimir_victoria(Tigr *pantalla, int ancho_ventana, int alto_ventana, int 
     color_verde=tigrRGB(17,171,58), color_marco=tigrRGB(10, 87, 18), fondo=tigrRGB(151,240,160), color_botones=tigrRGB(25, 115, 86),color_seleccionado=tigrRGB(14, 61, 29);
     
     tecla=tigrReadChar(pantalla);
-    if((*seleccion==1) && (tigrKeyHeld(pantalla,'S'))) {
+    
+    if(((*seleccion==1) && (tigrKeyHeld(pantalla,'S'))) || (nivel==2)) {
         *seleccion=0;
     }
     else if((*seleccion==0) && (tigrKeyHeld(pantalla,'W'))) {
@@ -687,8 +708,10 @@ bool imprimir_victoria(Tigr *pantalla, int ancho_ventana, int alto_ventana, int 
         tigrLine(pantalla_victoria.i, 273, 40+i+20, 283, 40+i+20, color_verde); 
     }
     //Fondo y texto para boton siguente nivel.
-    tigrFill(pantalla_victoria.i, boton_nivel.x, boton_nivel.y, boton_nivel.w, boton_nivel.h, presion_boton_nivel);
-    tigrPrint(pantalla_victoria.i, tfont, 5*ancho_ventana/19, 18*alto_ventana/50-2, color_verde, "SIGUIENTE NIVEL", 1);
+    if(nivel!=2) {
+        tigrFill(pantalla_victoria.i, boton_nivel.x, boton_nivel.y, boton_nivel.w, boton_nivel.h, presion_boton_nivel);
+        tigrPrint(pantalla_victoria.i, tfont, 5*ancho_ventana/19, 18*alto_ventana/50-2, color_verde, "SIGUIENTE NIVEL", 1);
+    }
     //Fondo y texto para boton volver al menu.
     tigrFill(pantalla_victoria.i, boton_menu.x, boton_menu.y, boton_menu.w, boton_menu.h, presion_boton_menu);
     tigrPrint(pantalla_victoria.i,  tfont, 5*ancho_ventana/19, 28*alto_ventana/50-1, color_verde, "VOLVER AL MENÚ", 1);
@@ -700,10 +723,12 @@ bool imprimir_victoria(Tigr *pantalla, int ancho_ventana, int alto_ventana, int 
         tigrLine(pantalla_victoria.i, 0+i, 0, 0+i, pantalla_victoria.h, color_marco);
         tigrLine(pantalla_victoria.i, pantalla_victoria.w-i-1, 0, pantalla_victoria.w-i-1, pantalla_victoria.h, color_marco);
         //Marco del boton volver a jugar.
-        tigrLine(pantalla_victoria.i, boton_nivel.x, boton_nivel.y+i, boton_nivel.x+boton_nivel.w, boton_nivel.y+i, color_marco);
-        tigrLine(pantalla_victoria.i, boton_nivel.x+i, boton_nivel.y, boton_nivel.x+i, boton_nivel.y+boton_nivel.h, color_marco);
-        tigrLine(pantalla_victoria.i, boton_nivel.x+boton_nivel.w-i, boton_nivel.y, boton_nivel.x+boton_nivel.w-i, boton_nivel.y+boton_nivel.h, color_marco);
-        tigrLine(pantalla_victoria.i, boton_nivel.x, boton_nivel.y+boton_nivel.h-i, boton_nivel.x+boton_nivel.w, boton_nivel.y+boton_nivel.h-i, color_marco);
+        if(nivel!=2) {
+            tigrLine(pantalla_victoria.i, boton_nivel.x, boton_nivel.y+i, boton_nivel.x+boton_nivel.w, boton_nivel.y+i, color_marco);
+            tigrLine(pantalla_victoria.i, boton_nivel.x+i, boton_nivel.y, boton_nivel.x+i, boton_nivel.y+boton_nivel.h, color_marco);
+            tigrLine(pantalla_victoria.i, boton_nivel.x+boton_nivel.w-i, boton_nivel.y, boton_nivel.x+boton_nivel.w-i, boton_nivel.y+boton_nivel.h, color_marco);
+            tigrLine(pantalla_victoria.i, boton_nivel.x, boton_nivel.y+boton_nivel.h-i, boton_nivel.x+boton_nivel.w, boton_nivel.y+boton_nivel.h-i, color_marco);
+        }
         //Marco para el boton volvel al menu.
         tigrLine(pantalla_victoria.i, boton_menu.x, boton_menu.y+i, boton_menu.x+boton_menu.w, boton_menu.y+i, color_marco);
         tigrLine(pantalla_victoria.i, boton_menu.x+i, boton_menu.y, boton_menu.x+i, boton_menu.y+boton_menu.h, color_marco);
@@ -807,8 +832,10 @@ bool bajar_escaleras_barril(TBarriles barril, TLista_coordenadas escaleras, int 
     }
     return false;
 }
-bool nivel2(bool game_over, TCoordenadas *agua, int ancho_ventana, int alto_ventana, Tigr *pantalla_juego, TCoordenadas personaje, float tiempo_total, float *resguardo_agua) {
+bool nivel2(bool victoria, bool game_over, TCoordenadas *ovni, bool *disparado, TCoordenadas *disparo, float *velocidad_disparo, float *resguardo_disparo, float *tiempo_ovni, TCoordenadas *agua, int ancho_ventana, int alto_ventana, Tigr *pantalla_juego, TCoordenadas personaje, float tiempo_total, float *resguardo_agua) {
     float cantidad_movimiento;
+    // Calcula el tiempo de aparicion del ovni.
+    *tiempo_ovni+=tiempo_total;
     // Creacion del color del agua.
     TPixel color_agua=tigrRGB(7, 100, 230);
     cantidad_movimiento=0;
@@ -820,24 +847,52 @@ bool nivel2(bool game_over, TCoordenadas *agua, int ancho_ventana, int alto_vent
         *resguardo_agua+=cantidad_movimiento;
         agua->y=*resguardo_agua;
     }
+    // Que aparezca encima del jugador.
+    if(*tiempo_ovni<=11) {
+        ovni->x=personaje.x;
+    }
+    else {
+        if(!*disparado) {
+            disparo->x=ovni->x+(ovni->w/2);
+            disparo->y=ovni->y+ovni->h;
+            *resguardo_disparo=disparo->y;
+            *disparado=true;
+        }
+    }
+    if(*disparado) {
+        *velocidad_disparo+=240*tiempo_total;
+        *resguardo_disparo+=(*velocidad_disparo)*tiempo_total;
+        disparo->y=*resguardo_disparo;
+        tigrBlitAlpha(pantalla_juego, disparo->i, disparo->x, disparo->y, 0, 0, disparo->w, disparo->h, 1);
+    }
+    // Pinta el ovni.
+    if (*tiempo_ovni>=8) {
+        tigrBlitAlpha(pantalla_juego, ovni->i, ovni->x, ovni->y, 0, 0, ovni->w, ovni->h, 1);
+        if(*tiempo_ovni>=13) {
+            *disparado=false;
+            *velocidad_disparo=0;
+            *tiempo_ovni=0;
+        }
+    }
     // Pintar el agua.
     tigrClear(agua->i, color_agua);
     // Integracion del agua a la pantalla de juego.
     tigrBlitAlpha(pantalla_juego, agua->i, agua->x, agua->y, 0, 0, agua->w, agua->h, 0.4);
     if(!game_over) {
-        return colision_objeto(personaje, *agua);
+        if(colision_objeto(personaje, *agua) || colision_objeto(personaje, *disparo)) {
+            return true;
+        }
+        return false;
     }
-    else {
-        return true;
-    }
+    return true;
 }
 int juego(Tigr *pantalla, int ancho_ventana, int alto_ventana, char nombre[11], float velocidad_ending, int *nivel) {
-    TCoordenadas pantalla_juego, pantalla_estructura, personaje, agua, ovni;
+    TCoordenadas pantalla_juego, pantalla_estructura, personaje, agua, ovni, disparo, anterior_posicion_escalera;
     TNiveles nivel1;
     int barril_reiniciar, elevacion_cierre, seleccion, caso, i, j, ultima_posicion_y, ultima_posicion_x, numero_barriles, gravedad, gravedad_barriles, posicion_escalera;
-    float tiempo_juego, tiempo_barriles, tiempo_total=0, resguardo_gravedad, velocidad_caida, resguardo_movimiento, resguardo_escalera, cantidad_movimiento, resguardo_agua;
+    float tiempo_inicio, tiempo_ovni, tiempo_juego, tiempo_barriles, tiempo_total=0, resguardo_gravedad, velocidad_caida, velocidad_disparo, resguardo_disparo, resguardo_movimiento, resguardo_escalera, cantidad_movimiento, cantidad_movimiento_escalera, resguardo_agua;
     char ultima_direccion;
-    bool cierre, pausa, caida, ending, esta_escalera, colgando, game_over, primer_salto, victoria;
+    bool disparado, opening, cierre, pausa, caida, ending, esta_escalera, colgando, game_over, primer_salto, victoria;
     
     // Asignacion de las coordenadas y dimensiones de las escaleas del nivel 1 y 2.
     for(i=0; i<9; i++) {
@@ -860,8 +915,10 @@ int juego(Tigr *pantalla, int ancho_ventana, int alto_ventana, char nombre[11], 
     // Asignacion de las coordenadas y dimensiones de la oveja.
     nivel1.oveja.i=tigrLoadImage("./imagenes/oveja.png"), nivel1.oveja.x=2*ancho_ventana/50, nivel1.oveja.y=11*alto_ventana/50-6, nivel1.oveja.w=57, nivel1.oveja.h=41;
     // Asignacion de las coordenadas y dimensiones del ovni.
-    ovni.i=tigrLoadImage("./imagenes/ovni.png"), ovni.x=25*ancho_ventana/50, ovni.y=25*alto_ventana/50, ovni.w=28, ovni.h=19;
-    
+    ovni.i=tigrLoadImage("./imagenes/ovni.png"), ovni.x=25*ancho_ventana/50, ovni.y=6*alto_ventana/50, ovni.w=32, ovni.h=22;
+    // Asignacion de las coordenadas y dimensiones del disparo.
+    disparo.i=tigrLoadImage("./imagenes/disparo.png"), disparo.x=ancho_ventana, disparo.y=alto_ventana, disparo.w=4, disparo.h=9;
+
     pantalla_estructura.x=0, pantalla_estructura.y=0, pantalla_estructura.w=ancho_ventana, pantalla_estructura.h=alto_ventana;
     pantalla_estructura.i=tigrBitmap(pantalla_estructura.w, pantalla_estructura.h);
     pantalla_juego.x=0, pantalla_juego.y=0, pantalla_juego.w=ancho_ventana, pantalla_juego.h=alto_ventana;
@@ -869,15 +926,20 @@ int juego(Tigr *pantalla, int ancho_ventana, int alto_ventana, char nombre[11], 
     // Asignacion de las coordenadas y dimensiones del agua.
     agua.x=0, agua.y=6*alto_ventana/4, agua.w=ancho_ventana, agua.h=alto_ventana;
     agua.i=tigrBitmap(agua.w, agua.h);
+    
     barril_reiniciar=0, elevacion_cierre=0 , seleccion=1, caso=-1, ultima_posicion_y=personaje.y, ultima_posicion_x=personaje.x, numero_barriles=0, gravedad=900, gravedad_barriles=500, posicion_escalera=0;
-    tiempo_juego=0, tiempo_barriles=0, resguardo_movimiento=personaje.x, resguardo_escalera=personaje.y, cantidad_movimiento=0, resguardo_gravedad=personaje.y, velocidad_caida=0, resguardo_agua=agua.y;
+    
+    tiempo_inicio=0, tiempo_ovni=0, tiempo_juego=0, tiempo_barriles=3, resguardo_movimiento=personaje.x, resguardo_escalera=personaje.y, cantidad_movimiento=0, cantidad_movimiento_escalera=0, resguardo_gravedad=personaje.y, velocidad_caida=0, velocidad_disparo=0, resguardo_agua=agua.y, resguardo_escalera=personaje.y;
+    
     ultima_direccion='D';
-    // Asignacion de los booleanos.
-    cierre=false, pausa=false, caida=true, ending=false, esta_escalera=false, colgando=false, game_over=false, primer_salto=false, victoria=false;
+    
+    disparado=false, opening=true, cierre=false, pausa=false, caida=true, ending=false, esta_escalera=false, colgando=false, game_over=false, primer_salto=false, victoria=false;
     // Creacion del color de las estructuras.
     TPixel color_solido=tigrRGB(69, 33, 217), color_solido2=tigrRGB(4, 19, 64),color_escalera=tigrRGB(30,222,45), color_barra=tigrRGB(120,143,63);
     // Colores para la barra de juego.
     TPixel color_barrajuego=tigrRGB(4,39,195), color_texto=tigrRGB(255,255,255), color_barrajuego2=tigrRGB(144,144,255);
+    // Creacion del color del texto inicio.
+    TPixel color_rojo=tigrRGB(255, 18, 77);
     // Creacion de las variables para saber si estamos encima de un solido y si hay rampas.
     TPixel color_mas_abajo, color_debajo, color_medio, color_arriba;
     while((!tigrClosed(pantalla)) && (!cierre)) {
@@ -896,16 +958,20 @@ int juego(Tigr *pantalla, int ancho_ventana, int alto_ventana, char nombre[11], 
             cierre=true;
         }
         if((!game_over) && (!ending) && (!victoria)) {
+            // Calcula el tiempo del inicio.
+            tiempo_inicio+=tiempo_total;
             // Calcula el tiempo de juego.
-            tiempo_juego+=tiempo_total;
+            if(!opening) {
+                tiempo_juego+=tiempo_total;
+            }
             tiempo_barriles+=tiempo_total;
             // Detecta que direccion que se quiere mover el jugador.
-            if((tigrKeyHeld(pantalla, 'A')) && (personaje.x>0)) {
+            if((!opening) && (tigrKeyHeld(pantalla, 'A')) && (personaje.x>0)) {
                 cantidad_movimiento=100*tiempo_total;
-                cantidad_movimiento=(-cantidad_movimiento);
+                cantidad_movimiento=-cantidad_movimiento;
                 ultima_direccion='I';
             }
-            else if((tigrKeyHeld(pantalla, 'D')) && ((personaje.x+personaje.w)<ancho_ventana)){
+            else if((!opening) && (tigrKeyHeld(pantalla, 'D')) && ((personaje.x+personaje.w)<ancho_ventana)){
                 cantidad_movimiento=100*tiempo_total;
                 ultima_direccion='D';
             }
@@ -993,7 +1059,7 @@ int juego(Tigr *pantalla, int ancho_ventana, int alto_ventana, char nombre[11], 
                 }
             }
             // Detecta si el jugador quiere saltar.
-            if((tigrKeyDown(pantalla, TK_SPACE)) && (!caida)) {
+            if((!opening) && (tigrKeyDown(pantalla, TK_SPACE)) && (!caida)) {
                 personaje.y--;
                 velocidad_caida=-250;
                 caida=true;
@@ -1002,18 +1068,33 @@ int juego(Tigr *pantalla, int ancho_ventana, int alto_ventana, char nombre[11], 
             // Saber si el jugador esta en las escaleras.
             esta_escalera=ver_escalera(personaje, nivel1.escaleras);
             // Subir escaleras.
-            if(esta_escalera) {
-                if(tigrKeyHeld(pantalla, 'W')) {
-                    colgando=true;
-                    caida=false;
-                    velocidad_caida=0;
-                    personaje.y--;
+            anterior_posicion_escalera=personaje;
+            if((esta_escalera) && (tigrKeyHeld(pantalla, 'W'))) {
+                colgando=true;
+                caida=false;
+                velocidad_caida=0;
+                cantidad_movimiento_escalera=60*tiempo_total;
+                cantidad_movimiento_escalera=-cantidad_movimiento_escalera;
+                resguardo_escalera+=cantidad_movimiento_escalera;
+                personaje.y=resguardo_escalera;
+                resguardo_gravedad=personaje.y;
+                ultima_posicion_y=personaje.y;
+            }
+            else if(!esta_escalera) {
+                colgando=false;
+            }
+            // Comprobar que en todo el recorrido de escalera no haya llegado al tope.
+            for(anterior_posicion_escalera.y; anterior_posicion_escalera.y>=personaje.y && colgando && !ver_escalera(personaje, nivel1.escaleras); anterior_posicion_escalera.y--) {
+                if(!ver_escalera(anterior_posicion_escalera, nivel1.escaleras)) {
+                    resguardo_escalera-=anterior_posicion_escalera.y-personaje.y-5;
+                    personaje.y=resguardo_escalera;
                     resguardo_gravedad=personaje.y;
                     ultima_posicion_y=personaje.y;
+                    break;
                 }
             }
-            else {
-                colgando=false;
+            if(!colgando) {
+                resguardo_escalera=personaje.y;
             }
             // Calculo de la gravedad del jugador.
             if((caida) && (!colgando)) {
@@ -1189,16 +1270,16 @@ int juego(Tigr *pantalla, int ancho_ventana, int alto_ventana, char nombre[11], 
         // Pinta los barriles.
         pintar_barriles(pantalla_juego.i, numero_barriles, nivel1.barriles);
         // Asignacion de que PNG pintar segun el estado del jugador.
-        if((tigrKeyHeld(pantalla, 'A')) && (!game_over)) {
+        if((!opening) && (tigrKeyHeld(pantalla, 'A')) && (!game_over)) {
             personaje.i=tigrLoadImage("./imagenes/personaje/caminar_izquierda.png");
         }
-        else if((tigrKeyHeld(pantalla, 'D')) && (!game_over)) {
+        else if((!opening) && (tigrKeyHeld(pantalla, 'D')) && (!game_over)) {
             personaje.i=tigrLoadImage("./imagenes/personaje/caminar_derecha.png");
         }
         else if((ultima_direccion=='D') && (!game_over)) {
             personaje.i=tigrLoadImage("./imagenes/personaje/estatico_derecha.png");
         }
-        else if((ultima_direccion=='I') && (!game_over)) {
+        else if((!opening) && (ultima_direccion=='I') && (!game_over)) {
             personaje.i=tigrLoadImage("./imagenes/personaje/estatico_izquierda.png");
         }
         // Pinta la tarta.
@@ -1209,11 +1290,27 @@ int juego(Tigr *pantalla, int ancho_ventana, int alto_ventana, char nombre[11], 
         tigrBlitAlpha(pantalla_juego.i, personaje.i, personaje.x, personaje.y, 0, 0, personaje.w, personaje.h, 1);
         // Exclusivo del nivel 2.
         if(*nivel==2) {
-            game_over=nivel2(game_over, &agua, ancho_ventana, alto_ventana, pantalla_juego.i, personaje, tiempo_total, &resguardo_agua);
-            tigrBlitAlpha(pantalla_juego.i, ovni.i, ovni.x, ovni.y, 0, 0, ovni.w, ovni.h, 1);
+            game_over=nivel2(victoria , game_over, &ovni, &disparado, &disparo, &velocidad_disparo, &resguardo_disparo, &tiempo_ovni, &agua, ancho_ventana, alto_ventana, pantalla_juego.i, personaje, tiempo_total, &resguardo_agua);
+        }
+        // Pinta contador del comienzo.
+        if(tiempo_inicio<=3) {
+            tigrPrint(pantalla_juego.i, tfont, 19*ancho_ventana/50+7, alto_ventana/2, color_rojo, "COMIENZA EN...", 1);
+        }
+        else if(tiempo_inicio<=5) {
+            tigrPrint(pantalla_juego.i, tfont, ancho_ventana/2, alto_ventana/2, color_rojo, "3", 1);
+        }
+        else if(tiempo_inicio<=6) {
+            tigrPrint(pantalla_juego.i, tfont, ancho_ventana/2, alto_ventana/2, color_rojo, "2", 1);
+        }
+        else if(tiempo_inicio<=8) {
+            tigrPrint(pantalla_juego.i, tfont, ancho_ventana/2, alto_ventana/2, color_rojo, "1", 1);
+        }
+        else if(tiempo_inicio<=10) {
+            tigrPrint(pantalla_juego.i, tfont, ancho_ventana/2, alto_ventana/2, color_rojo, "YA", 1);
+            opening=false;
         }
         // Integracion de la barra del juego.
-        barra_juego(pantalla_juego.i, ancho_ventana, alto_ventana, nombre,tiempo_juego, color_barrajuego, color_texto, color_barrajuego2);
+        barra_juego(pantalla_juego.i, ancho_ventana, alto_ventana, nombre, tiempo_juego, color_barrajuego, color_texto, color_barrajuego2, *nivel);
         // Integracion de la ventana de juego a la pantalla de juego.
         tigrBlitAlpha(pantalla, pantalla_juego.i, pantalla_juego.x, pantalla_juego.y, 0, 0, pantalla_juego.w, pantalla_juego.h, 1);
         // Muestra la pantalla de game over.
@@ -1229,7 +1326,7 @@ int juego(Tigr *pantalla, int ancho_ventana, int alto_ventana, char nombre[11], 
         }
         // Muestra la pantalla victoria.
         if((victoria) && (!ending)) {
-            ending=imprimir_victoria(pantalla, ancho_ventana, alto_ventana, &seleccion, &caso);
+            ending=imprimir_victoria(pantalla, ancho_ventana, alto_ventana, &seleccion, &caso, *nivel);
         }
         // Actualiza la imagen.
         tigrUpdate(pantalla);
@@ -1259,6 +1356,11 @@ int selector_de_niveles(Tigr *pantalla, int ancho_ventana, int alto_ventana, int
     while((!tigrClosed(pantalla)) && (!cierre)) {
         tiempo_total=Calcular_Tiempo();
         tigrMouse(pantalla, &cursor.x, &cursor.y, &click);
+        // Vuelve al menu.
+        if((tigrKeyHeld(pantalla, TK_ESCAPE)) && (!ending)) {
+            ending=true;
+            caso=0;
+        }
         // Elevacion del cierre.
         if(ending) {
             elevacion_cierre=velocidad_ending*tiempo_total;
@@ -1343,6 +1445,66 @@ int selector_de_niveles(Tigr *pantalla, int ancho_ventana, int alto_ventana, int
     }
     return caso;
 }
+int imprimir_creditos(Tigr *pantalla, int ancho_ventana, int alto_ventana, float velocidad_ending) {
+    TCoordenadas cursor, pantalla_creditos, boton_nivel1, boton_nivel2, plantilla;
+    int caso, click=0, last_click=0, seleccion, elevacion_cierre=0;
+    float tiempo_total=0;
+    bool cierre, ending;
+    TPixel color_azul=tigrRGB(69, 0, 98), color_morado=tigrRGB(160, 0, 100);
+    
+    cursor.i=tigrLoadImage("./imagenes/cursor.png"), cursor.x=0, cursor.y=0;
+    // Asignacion de las coordenadas y las dimensiones de la pantalla niveles.
+    pantalla_creditos.x=0, pantalla_creditos.y=0, pantalla_creditos.w=ancho_ventana, pantalla_creditos.h=alto_ventana;
+    pantalla_creditos.i=tigrBitmap(pantalla_creditos.w, pantalla_creditos.h);
+    plantilla.x=ancho_ventana/8, plantilla.y=alto_ventana/10, plantilla.w=6*ancho_ventana/8, plantilla.h=8*alto_ventana/10;
+    
+    caso=-1;
+    
+    cierre=false, ending=false;
+    
+    while((!tigrClosed(pantalla)) && (!cierre)) {
+        tiempo_total=Calcular_Tiempo();
+        tigrMouse(pantalla, &cursor.x, &cursor.y, &click);
+        // Vuelve al menu.
+        if((tigrKeyHeld(pantalla, TK_ESCAPE)) && (!ending)) {
+            ending=true;
+            caso=0;
+        }
+        // Elevacion del cierre.
+        if(ending) {
+            elevacion_cierre=velocidad_ending*tiempo_total;
+            pantalla_creditos.y-=elevacion_cierre;
+        }
+        // Comprobacion de si la ventana se va ha cerrar.
+        if(pantalla_creditos.y<=-pantalla_creditos.h) {
+            cierre=true;
+        }
+        // Limpia el fondo de la pantalla.
+        tigrClear(pantalla, tigrRGB(0, 0, 0));
+        if(!ending) {
+            // Limpia la pantalla de niveles.
+            tigrClear(pantalla_creditos.i, tigrRGB(0, 0, 0));
+            // Obtiene la posición del cursor y si esta haciendo click.
+            // Pinta la plantilla.
+            tigrFill(pantalla_creditos.i, plantilla.x, plantilla.y, plantilla.w, plantilla.h, color_azul);
+            //poner nombres
+                tigrPrint(pantalla_creditos.i, tfont, 4.35*ancho_ventana/16 , 6.85*alto_ventana/16, tigrRGB(255,255,255), "Maciá Valero, Andrés", 0);
+                tigrPrint(pantalla_creditos.i, tfont, 4.35*ancho_ventana/16 , 7.85*alto_ventana/16, tigrRGB(255,255,255), "Launov Draganov, Danil", 0);
+                tigrPrint(pantalla_creditos.i, tfont, 4.35*ancho_ventana/16 , 8.85*alto_ventana/16, tigrRGB(255,255,255), "Veldemar Volkov,Alexander", 0);
+
+            
+
+            
+            tigrBlitAlpha(pantalla_creditos.i, cursor.i, cursor.x, cursor.y, 0, 0, 32, 32, 1);
+        }
+        // Integracion de la ventana niveles a la pantalla
+        tigrBlitAlpha(pantalla, pantalla_creditos.i, pantalla_creditos.x, pantalla_creditos.y, 0, 0, pantalla_creditos.w, pantalla_creditos.h, 1);
+        // Refresca la imagen.
+        tigrUpdate(pantalla);
+    }
+    return caso;
+}
+
 int main() {
     // Establecimiento de la primera pantalla en abrirse.
     int caso=0;
@@ -1371,10 +1533,15 @@ int main() {
                     break;
             case 2: caso=juego(pantalla, ancho_ventana, alto_ventana, nombre,velocidad_cierre, &nivel);
                     break;
-            case 3: caso=juego(pantalla, ancho_ventana, alto_ventana, nombre,velocidad_cierre, &nivel);
+            case 3: nivel=2;
+                    caso=juego(pantalla, ancho_ventana, alto_ventana, nombre,velocidad_cierre, &nivel);
                     break;
             case 4: caso=selector_de_niveles(pantalla, ancho_ventana, alto_ventana, &nivel, velocidad_cierre);
+                    break;
+            case 5: caso=imprimir_creditos(pantalla, ancho_ventana, alto_ventana, velocidad_cierre);
         }
+
+       
     } while(caso!=-1);
     // Cierre de la ventana del juego.
     tigrFree(pantalla);
