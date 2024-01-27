@@ -1,8 +1,16 @@
 #include<stdio.h> // Se copila con gcc ./tigr/tigr.c juego.c -o juego -I./tigr -lGLU -lGL -lX11
 #include<stdbool.h>
 #include"./tigr/tigr.h"
+#include<string.h>
 #define FICHERO_TIEMPOS "tiempos.texto"
-
+typedef struct {
+    char nombre[10];
+    float tiempo;
+} TDatos;
+typedef struct {
+    TDatos lista[6];
+    int cantidad;
+} TLista_ranking;
 typedef struct { // Establecimiento del registro de imagen, coordenadas y dimensiones de los diferentes elementos del juego.
     Tigr *i;
     int x;
@@ -37,6 +45,79 @@ float Calcular_Tiempo() {
     tiempo_total=(tiempo_final-tiempo_inicial);
     tiempo_inicial=tigrTime();
     return tiempo_total;
+}
+// Modulo encargado de cargar los datos del ranking.
+void cargar_ranking(TLista_ranking *ranking1, TLista_ranking *ranking2) {
+    FILE *documento_ranking;
+    int i;
+    ranking1->cantidad=0;
+    ranking2->cantidad=0;
+    documento_ranking=fopen("ranking.txt", "r");
+    // Carga el ranking del nivel 1.
+    for(i=0; i<5; i++) {
+        if(!feof(documento_ranking)) {
+            fscanf(documento_ranking, "%10[^\n] %f\n", ranking1->lista[i].nombre, &ranking1->lista[i].tiempo);
+            if(ranking1->lista[i].tiempo!=0) {
+                ranking1->cantidad++;
+            }
+        }
+    }
+    fscanf(documento_ranking, "\n");
+    // Carga el ranking del nivel 2.
+    for(i=0; i<5; i++) {
+        if(!feof(documento_ranking)) {
+            fscanf(documento_ranking, "%10[^\n] %f\n", ranking2->lista[i].nombre, &ranking2->lista[i].tiempo);
+            if(ranking2->lista[i].tiempo!=0) {
+                (ranking2->cantidad)++;
+            }
+        }
+    }
+    fclose(documento_ranking);
+}
+void introducir_ranking(char nombre[], int nivel, float tiempo_total, TLista_ranking *ranking1, TLista_ranking *ranking2) {
+    FILE *documento_ranking;
+    TLista_ranking *ranking_modificar;
+    int i, j;
+    float auxiliar_tiempo;
+    char auxiliar_nombre[10];
+    if(nivel==1) {
+        ranking_modificar=ranking1;
+    }
+    else {
+        ranking_modificar=ranking2;
+    }
+    // Introducimos el tiempo de la partido.
+    strncpy((*ranking_modificar).lista[(*ranking_modificar).cantidad].nombre, nombre, 10);
+    (*ranking_modificar).lista[(*ranking_modificar).cantidad].tiempo=tiempo_total;
+    
+    ((*ranking_modificar).cantidad)++;
+    
+    // Ordenamos el ranking.
+    for(i=1; i<(*ranking_modificar).cantidad; i++) {
+        for(j=(*ranking_modificar).cantidad-1; j>=i; j--) {
+            if((*ranking_modificar).lista[j-1].tiempo>(*ranking_modificar).lista[j].tiempo) {
+                auxiliar_tiempo=(*ranking_modificar).lista[j-1].tiempo;
+                strncpy(auxiliar_nombre, (*ranking_modificar).lista[j-1].nombre, 10);
+                (*ranking_modificar).lista[j-1].tiempo=(*ranking_modificar).lista[j].tiempo;
+                strncpy((*ranking_modificar).lista[j-1].nombre, (*ranking_modificar).lista[j].nombre, 10);
+                (*ranking_modificar).lista[j].tiempo=auxiliar_tiempo;
+                strncpy((*ranking_modificar).lista[j].nombre, auxiliar_nombre, 10);
+            }
+        }
+    }
+    if((*ranking_modificar).cantidad==6) {
+        ((*ranking_modificar).cantidad)--;
+    }
+    // Guardamos en el fichero los datos actualizados.
+    documento_ranking=fopen("ranking.txt", "w");
+    for(i=0; i<5; i++) {
+        fprintf(documento_ranking, "%s %f\n", ranking1->lista[i].nombre, ranking1->lista[i].tiempo);
+    }
+    fprintf(documento_ranking, "\n");
+    for(i=0; i<5; i++) {
+        fprintf(documento_ranking, "%s %f\n", ranking2->lista[i].nombre, ranking2->lista[i].tiempo);
+    }
+    fclose(documento_ranking);
 }
 // Modulo que pinta el titulo y la sombra.
 void pintar_titulo_y_sombra(Tigr *transparencia_titulo, TPixel cuerpo_o_sombra) {
@@ -75,14 +156,15 @@ void pintar_titulo_y_sombra(Tigr *transparencia_titulo, TPixel cuerpo_o_sombra) 
 }
 // Modulo que muestra el menu.
 int menu(Tigr *pantalla, int ancho_ventana, int alto_ventana, float velocidad_ending, int *nivel) {
-    TCoordenadas cursor, cortina, plantilla, titulo, sombra, boton_jugar, boton_niveles, boton_creditos, pantalla_menu;
-   
+    // Creacion de las coordenadas de los diferentes elementos del menu.
+    TCoordenadas cursor, cortina, plantilla, titulo, sombra, boton_jugar, boton_niveles, boton_ranking, pantalla_menu;
+    
     pantalla_menu.x=0, pantalla_menu.y=0, pantalla_menu.w=ancho_ventana, pantalla_menu.h=alto_ventana;
     pantalla_menu.i=tigrBitmap(pantalla_menu.w, pantalla_menu.h);
 
     cursor.i=tigrLoadImage("./imagenes/cursor.png"), cursor.x=0, cursor.y=0; // Establecimiento de la posicion anterior del raton.
     cortina.x=0, cortina.y=0, cortina.w=pantalla_menu.w, cortina.h=2*pantalla_menu.h/8;
-
+    
     titulo.y=0, titulo.w=251, titulo.h=40;
     titulo.x=(ancho_ventana-titulo.w)/2, titulo.i=tigrBitmap(titulo.w, titulo.h);
 
@@ -93,7 +175,7 @@ int menu(Tigr *pantalla, int ancho_ventana, int alto_ventana, float velocidad_en
     // Creacion de las coordenadas y las dimensiones de los botones.
     boton_jugar.x=ancho_ventana, boton_jugar.y=alto_ventana, boton_jugar.w=0, boton_jugar.h=2*alto_ventana/16;
     boton_niveles.x=ancho_ventana, boton_niveles.y=alto_ventana, boton_niveles.w=0, boton_niveles.h=2*alto_ventana/16;
-    boton_creditos.x=ancho_ventana, boton_creditos.y=alto_ventana, boton_creditos.w=0, boton_creditos.h=2*alto_ventana/16;
+    boton_ranking.x=ancho_ventana, boton_ranking.y=alto_ventana, boton_ranking.w=0, boton_ranking.h=2*alto_ventana/16;
 
     int aparicion_botones=1, seleccion=-1, click=0, last_click=0, botes=0, elevacion=0, elevacion_cierre=0, i=0, j=0;
     // Creacion de los diferentes controladores de tiempo.
@@ -102,9 +184,9 @@ int menu(Tigr *pantalla, int ancho_ventana, int alto_ventana, float velocidad_en
     bool plantilla_terminada, cierre, permitido, opening, ending;
     TPixel color_morado=tigrRGB(160, 0, 100), color_azul=tigrRGB(69, 0, 98), cuerpo_o_sombra, tema_actual, tema1=tigrRGB(40, 131, 250), tema2=tigrRGB(252, 221, 78), color_sombra=tigrRGB(26, 6, 92);
     // Creacion del color de los botones.
-    TPixel presion_boton_jugar, presion_boton_niveles, presion_boton_creditos, si_presionado=tigrRGB(70,83,199),  no_presionado=tigrRGB(116, 130, 252), color_seleccionado=tigrRGB(9, 176, 70);
+    TPixel presion_boton_jugar, presion_boton_niveles, presion_boton_ranking, si_presionado=tigrRGB(70,83,199),  no_presionado=tigrRGB(116, 130, 252), color_seleccionado=tigrRGB(9, 176, 70);
     // Creacion del tema de los botones.
-    TPixel tema_boton_jugar, tema_boton_niveles, tema_boton_creditos;
+    TPixel tema_boton_jugar, tema_boton_niveles, tema_boton_ranking;
     Tigr *transparencia_titulo;
     // Asignacion del tema principal inicial.
     tema_actual=tema1;
@@ -175,7 +257,6 @@ int menu(Tigr *pantalla, int ancho_ventana, int alto_ventana, float velocidad_en
                             tiempo_botones=0;
                             aparicion_botones=2;
                         }
-                       
                         break;
                 // Aparicion del boton Niveles.
                 case 2: boton_niveles.w=9*ancho_ventana/16;
@@ -191,16 +272,16 @@ int menu(Tigr *pantalla, int ancho_ventana, int alto_ventana, float velocidad_en
                             aparicion_botones=3;
                         }
                         break;
-                // Aparicion del boton creditos.
-                case 3: boton_creditos.w=9*ancho_ventana/16;
-                        boton_creditos.h=3*alto_ventana/16;
-                        boton_creditos.x=3.5*ancho_ventana/16;
-                        boton_creditos.y=11.5*alto_ventana/16;
+                // Aparicion del boton Ranking.
+                case 3: boton_ranking.w=9*ancho_ventana/16;
+                        boton_ranking.h=3*alto_ventana/16;
+                        boton_ranking.x=3.5*ancho_ventana/16;
+                        boton_ranking.y=11.5*alto_ventana/16;
                         if(tiempo_botones>0.2) {
-                            boton_creditos.w=8*ancho_ventana/16;
-                            boton_creditos.h=2*alto_ventana/16;
-                            boton_creditos.x=4*ancho_ventana/16;
-                            boton_creditos.y=12*alto_ventana/16;
+                            boton_ranking.w=8*ancho_ventana/16;
+                            boton_ranking.h=2*alto_ventana/16;
+                            boton_ranking.x=4*ancho_ventana/16;
+                            boton_ranking.y=12*alto_ventana/16;
                             opening=false;
                         }
                         break;
@@ -208,25 +289,27 @@ int menu(Tigr *pantalla, int ancho_ventana, int alto_ventana, float velocidad_en
         }
         // Obtencion de la posicion del cursor y comprobacion de si se ha clicado.
         tigrMouse(pantalla, &cursor.x, &cursor.y, &click);
-        // Comprobacion de si el cursor esta encima de algun boton y si ha clicado en el.
+        // Comprobacion de si el cursor esta encima de algun boton.
         if((!opening) && (!ending) && (cursor.x>=boton_jugar.x) && (cursor.y>=boton_jugar.y) && (cursor.x<=boton_jugar.x+boton_jugar.w) && (cursor.y<=boton_jugar.y+boton_jugar.h)) {
             seleccion=1;
         }
         else if((!opening) && (!ending) && (cursor.x>=boton_niveles.x) && (cursor.y>=boton_niveles.y) && (cursor.x<=boton_niveles.x+boton_niveles.w) && (cursor.y<=boton_niveles.y+boton_niveles.h)) {
             seleccion=4;
         }
-        else if((!opening) && (!ending) && (cursor.x>=boton_creditos.x) && (cursor.y>=boton_creditos.y) && (cursor.x<=boton_creditos.x+boton_creditos.w) && (cursor.y<=boton_creditos.y+boton_creditos.h)) {
+        else if((!opening) && (!ending) && (cursor.x>=boton_ranking.x) && (cursor.y>=boton_ranking.y) && (cursor.x<=boton_ranking.x+boton_ranking.w) && (cursor.y<=boton_ranking.y+boton_ranking.h)) {
             seleccion=5;
         }
         else if((!ending)) {
             seleccion=-1;
         }
+        // Temas por defecto de los botones.
         presion_boton_jugar=no_presionado;
         presion_boton_niveles=no_presionado;
-        presion_boton_creditos=no_presionado;
+        presion_boton_ranking=no_presionado;
         tema_boton_jugar=tema_actual;
         tema_boton_niveles=tema_actual;
-        tema_boton_creditos=tema_actual;
+        tema_boton_ranking=tema_actual;
+        // Cambio de tema del boton cuando el cursor esta encima de el y comprobacion de si ha clicado sobre el boton.
         switch(seleccion) {
             case 1: presion_boton_jugar=si_presionado;
                     tema_boton_jugar=color_seleccionado;
@@ -241,8 +324,8 @@ int menu(Tigr *pantalla, int ancho_ventana, int alto_ventana, float velocidad_en
                         ending=true;
                     }
                     break;
-            case 5:  presion_boton_creditos=si_presionado;
-                    tema_boton_creditos=color_seleccionado;
+            case 5:  presion_boton_ranking=si_presionado;
+                    tema_boton_ranking=color_seleccionado;
                     if((click==1) && (last_click==0)) {
                         ending=true;
                     }
@@ -292,7 +375,7 @@ int menu(Tigr *pantalla, int ancho_ventana, int alto_ventana, float velocidad_en
             // Botones.
             tigrFill(pantalla_menu.i, boton_jugar.x, boton_jugar.y, boton_jugar.w, boton_jugar.h, presion_boton_jugar);
             tigrFill(pantalla_menu.i, boton_niveles.x, boton_niveles.y, boton_niveles.w, boton_niveles.h, presion_boton_niveles);
-            tigrFill(pantalla_menu.i, boton_creditos.x, boton_creditos.y, boton_creditos.w, boton_creditos.h, presion_boton_creditos);
+            tigrFill(pantalla_menu.i, boton_ranking.x, boton_ranking.y, boton_ranking.w, boton_ranking.h, presion_boton_ranking);
             // Marco boton Jugar.
             tigrFill(pantalla_menu.i, boton_jugar.x, boton_jugar.y, boton_jugar.w, 2, tema_boton_jugar);
             tigrFill(pantalla_menu.i, boton_jugar.x, boton_jugar.y, 2, boton_jugar.h, tema_boton_jugar);
@@ -303,11 +386,11 @@ int menu(Tigr *pantalla, int ancho_ventana, int alto_ventana, float velocidad_en
             tigrFill(pantalla_menu.i, boton_niveles.x, boton_niveles.y, 2, boton_niveles.h, tema_boton_niveles);
             tigrFill(pantalla_menu.i, boton_niveles.x+boton_niveles.w-2, boton_niveles.y, 2, boton_niveles.h, tema_boton_niveles);
             tigrFill(pantalla_menu.i, boton_niveles.x, boton_niveles.y+boton_niveles.h-2, boton_niveles.w, 2, tema_boton_niveles);
-            // Marco boton creditos.
-            tigrFill(pantalla_menu.i, boton_creditos.x, boton_creditos.y, boton_creditos.w, 2, tema_boton_creditos);
-            tigrFill(pantalla_menu.i, boton_creditos.x, boton_creditos.y, 2, boton_creditos.h, tema_boton_creditos);
-            tigrFill(pantalla_menu.i, boton_creditos.x+boton_creditos.w-2, boton_creditos.y, 2, boton_creditos.h, tema_boton_creditos);
-            tigrFill(pantalla_menu.i, boton_creditos.x, boton_creditos.y+boton_creditos.h-2, boton_creditos.w, 2, tema_boton_creditos);
+            // Marco boton Ranking.
+            tigrFill(pantalla_menu.i, boton_ranking.x, boton_ranking.y, boton_ranking.w, 2, tema_boton_ranking);
+            tigrFill(pantalla_menu.i, boton_ranking.x, boton_ranking.y, 2, boton_ranking.h, tema_boton_ranking);
+            tigrFill(pantalla_menu.i, boton_ranking.x+boton_ranking.w-2, boton_ranking.y, 2, boton_ranking.h, tema_boton_ranking);
+            tigrFill(pantalla_menu.i, boton_ranking.x, boton_ranking.y+boton_ranking.h-2, boton_ranking.w, 2, tema_boton_ranking);
             // Textos de los botones.
             if(aparicion_botones>=2) {
                 tigrPrint(pantalla_menu.i, tfont, 7.35*ancho_ventana/16 , 6.85*alto_ventana/16, tema_boton_jugar, "JUGAR", 0);
@@ -316,9 +399,10 @@ int menu(Tigr *pantalla, int ancho_ventana, int alto_ventana, float velocidad_en
                 tigrPrint(pantalla_menu.i, tfont, 7*ancho_ventana/16 , 9.85*alto_ventana/16, tema_boton_niveles, "NIVELES", 0);
             }
             if(opening==false) {
-                tigrPrint(pantalla_menu.i, tfont, 6.6*ancho_ventana/16 , 12.85*alto_ventana/16, tema_boton_creditos, "CREDITOS", 0);
+                tigrPrint(pantalla_menu.i, tfont, 7*ancho_ventana/16 , 12.85*alto_ventana/16, tema_boton_ranking, "RANKING", 0);
             }
-        
+            // Pinta los creditos.
+            tigrPrint(pantalla_menu.i, tfont, 5, pantalla_menu.h-15, tigrRGB(255, 255, 255), "Hecho por: Alexander Veldemar, Andrés Maciá y Danil Launov", 0);
             // Pinta cursor personalizado.
             tigrBlitAlpha(pantalla_menu.i, cursor.i, cursor.x, cursor.y, 0, 0, 32, 32, 1);
         }
@@ -334,6 +418,7 @@ int menu(Tigr *pantalla, int ancho_ventana, int alto_ventana, float velocidad_en
     }
     return seleccion;
 }
+// Modulo encargado de preguntar el nombre al jugador.
 int poner_nombre(Tigr *pantalla, int ancho_ventana, int alto_ventana, char nombre[11],float velocidad_ending) {
     TCoordenadas pantalla_nombre, boton_escape;
     TPixel color_escape=tigrRGB(160, 0, 100), color_texto=tigrRGB(255,255,255);
@@ -404,7 +489,7 @@ int poner_nombre(Tigr *pantalla, int ancho_ventana, int alto_ventana, char nombr
             tigrClear(pantalla_nombre.i, tigrRGB(0, 0, 0));
             // Imprime el texto por pantalla.
             tigrPrint(pantalla_nombre.i, tfont, ancho_ventana/6, alto_ventana/6, tigrRGB(252, 252, 252), "Introduce tu nombre:", 0);
-            tigrPrint(pantalla_nombre.i, tfont, ancho_ventana/6+140, alto_ventana/6, tigrRGB(117, 227, 20),"%s", nombre);
+            tigrPrint(pantalla_nombre.i, tfont, ancho_ventana/6+140, alto_ventana/6, tigrRGB(117, 227, 20), "%s", nombre);
         }
         //Rectangulo de ESCAPE marco ESC.
         tigrFill(pantalla_nombre.i, boton_escape.x, boton_escape.y, boton_escape.w, boton_escape.h, color_escape);
@@ -486,6 +571,7 @@ void pintar_barriles(Tigr *pantalla_juego, int numero_barriles, TLista_barriles 
         tigrBlitAlpha(pantalla_juego, barriles[i].coordenadas.i, barriles[i].coordenadas.x, barriles[i].coordenadas.y, 0, 0, barriles[i].coordenadas.w, barriles[i].coordenadas.h, 1);
     }
 }
+// Imprime la barra superior del videojuego.
 void barra_juego(Tigr *pantalla_juego, int ancho_ventana, int alto_ventana, char nombre[11],float tiempo_juego, TPixel color_barrajuego, TPixel color_texto, TPixel color_barrajuego2, int nivel) {
     TCoordenadas marco;
     int i, minutos_juego=(int)(tiempo_juego/60), segundos_juego=(int)tiempo_juego%60;
@@ -751,6 +837,10 @@ bool colision_objeto(TCoordenadas personaje, TCoordenadas objeto) {
     if ((personaje.x>=objeto.x) && (personaje.x<=(objeto.x+objeto.w)) && ((personaje.y + personaje.h-3)>=objeto.y) && ((personaje.y+personaje.h-3)<=(objeto.y+objeto.h))) {
         return true;
     }
+    // En el medio.
+    if (((personaje.x+personaje.w/2)>=objeto.x) && ((personaje.x+personaje.w/2)<=(objeto.x+objeto.w)) && ((personaje.y+personaje.h-3)>=objeto.y) && ((personaje.y+personaje.h-3)<=(objeto.y+objeto.h))) {
+        return true;
+    }
     // Esquina inferior derecha.
     if (((personaje.x+personaje.w)>=objeto.x) && ((personaje.x+personaje.w)<=(objeto.x+objeto.w)) && ((personaje.y+personaje.h-3)>=objeto.y) && ((personaje.y+personaje.h-3)<=(objeto.y+objeto.h))) {
         return true;
@@ -846,29 +936,31 @@ bool nivel2(bool victoria, bool game_over, TCoordenadas *ovni, bool *disparado, 
         // Calculo de la posicion vertical del agua.
         *resguardo_agua+=cantidad_movimiento;
         agua->y=*resguardo_agua;
-    }
-    // Que aparezca encima del jugador.
-    if(*tiempo_ovni<=11) {
-        ovni->x=personaje.x;
-    }
-    else {
-        if(!*disparado) {
-            disparo->x=ovni->x+(ovni->w/2);
-            disparo->y=ovni->y+ovni->h;
-            *resguardo_disparo=disparo->y;
-            *disparado=true;
+        // Que aparezca encima del jugador.
+        if(*tiempo_ovni<=11) {
+            ovni->x=personaje.x-7;
         }
-    }
-    if(*disparado) {
-        *velocidad_disparo+=240*tiempo_total;
-        *resguardo_disparo+=(*velocidad_disparo)*tiempo_total;
-        disparo->y=*resguardo_disparo;
-        tigrBlitAlpha(pantalla_juego, disparo->i, disparo->x, disparo->y, 0, 0, disparo->w, disparo->h, 1);
+        else {
+            if(!*disparado) {
+                disparo->x=ovni->x+(ovni->w/2);
+                disparo->y=ovni->y+ovni->h;
+                *resguardo_disparo=disparo->y;
+                *disparado=true;
+            }
+        }
+        // Caida del disparo.
+        if(*disparado) {
+            *velocidad_disparo+=240*tiempo_total;
+            *resguardo_disparo+=(*velocidad_disparo)*tiempo_total;
+            disparo->y=*resguardo_disparo;
+            tigrBlitAlpha(pantalla_juego, disparo->i, disparo->x, disparo->y, 0, 0, disparo->w, disparo->h, 1);
+        }
+
     }
     // Pinta el ovni.
     if (*tiempo_ovni>=8) {
         tigrBlitAlpha(pantalla_juego, ovni->i, ovni->x, ovni->y, 0, 0, ovni->w, ovni->h, 1);
-        if(*tiempo_ovni>=13) {
+        if((*tiempo_ovni>=13) && (!game_over)) {
             *disparado=false;
             *velocidad_disparo=0;
             *tiempo_ovni=0;
@@ -886,7 +978,7 @@ bool nivel2(bool victoria, bool game_over, TCoordenadas *ovni, bool *disparado, 
     }
     return true;
 }
-int juego(Tigr *pantalla, int ancho_ventana, int alto_ventana, char nombre[11], float velocidad_ending, int *nivel) {
+int juego(Tigr *pantalla, TLista_ranking *ranking1, TLista_ranking *ranking2, int ancho_ventana, int alto_ventana, char nombre[11], float velocidad_ending, int *nivel) {
     TCoordenadas pantalla_juego, pantalla_estructura, personaje, agua, ovni, disparo, anterior_posicion_escalera;
     TNiveles nivel1;
     int barril_reiniciar, elevacion_cierre, seleccion, caso, i, j, ultima_posicion_y, ultima_posicion_x, numero_barriles, gravedad, gravedad_barriles, posicion_escalera;
@@ -917,7 +1009,7 @@ int juego(Tigr *pantalla, int ancho_ventana, int alto_ventana, char nombre[11], 
     // Asignacion de las coordenadas y dimensiones del ovni.
     ovni.i=tigrLoadImage("./imagenes/ovni.png"), ovni.x=25*ancho_ventana/50, ovni.y=6*alto_ventana/50, ovni.w=32, ovni.h=22;
     // Asignacion de las coordenadas y dimensiones del disparo.
-    disparo.i=tigrLoadImage("./imagenes/disparo.png"), disparo.x=ancho_ventana, disparo.y=alto_ventana, disparo.w=4, disparo.h=9;
+    disparo.i=tigrLoadImage("./imagenes/disparo.png"), disparo.x=ancho_ventana, disparo.y=alto_ventana, disparo.w=4, disparo.h=18;
 
     pantalla_estructura.x=0, pantalla_estructura.y=0, pantalla_estructura.w=ancho_ventana, pantalla_estructura.h=alto_ventana;
     pantalla_estructura.i=tigrBitmap(pantalla_estructura.w, pantalla_estructura.h);
@@ -961,7 +1053,7 @@ int juego(Tigr *pantalla, int ancho_ventana, int alto_ventana, char nombre[11], 
             // Calcula el tiempo del inicio.
             tiempo_inicio+=tiempo_total;
             // Calcula el tiempo de juego.
-            if(!opening) {
+            if((!opening) && (!victoria)) {
                 tiempo_juego+=tiempo_total;
             }
             tiempo_barriles+=tiempo_total;
@@ -1331,6 +1423,10 @@ int juego(Tigr *pantalla, int ancho_ventana, int alto_ventana, char nombre[11], 
         // Actualiza la imagen.
         tigrUpdate(pantalla);
     }
+    // Envio del tiempo al ranking del nivel 1.
+    if(victoria) {
+        introducir_ranking(nombre, *nivel, tiempo_juego, ranking1, ranking2);
+    }
     return caso;
 }
 int selector_de_niveles(Tigr *pantalla, int ancho_ventana, int alto_ventana, int *nivel, float velocidad_ending) {
@@ -1445,25 +1541,27 @@ int selector_de_niveles(Tigr *pantalla, int ancho_ventana, int alto_ventana, int
     }
     return caso;
 }
-int imprimir_creditos(Tigr *pantalla, int ancho_ventana, int alto_ventana, float velocidad_ending) {
-    TCoordenadas cursor, pantalla_creditos, boton_nivel1, boton_nivel2, plantilla;
-    int caso, click=0, last_click=0, seleccion, elevacion_cierre=0;
+int imprimir_ranking(Tigr *pantalla, TLista_ranking ranking1, TLista_ranking ranking2, int ancho_ventana, int alto_ventana, float velocidad_ending) {
+    TCoordenadas cursor, pantalla_ranking, boton_nivel1, boton_nivel2, plantilla;
+    int caso, minutos, segundos, click=0, last_click=0, seleccion, elevacion_cierre=0, i;
     float tiempo_total=0;
+    char imprimir[60];
     bool cierre, ending;
     TPixel color_azul=tigrRGB(69, 0, 98), color_morado=tigrRGB(160, 0, 100);
     
     cursor.i=tigrLoadImage("./imagenes/cursor.png"), cursor.x=0, cursor.y=0;
-    // Asignacion de las coordenadas y las dimensiones de la pantalla niveles.
-    pantalla_creditos.x=0, pantalla_creditos.y=0, pantalla_creditos.w=ancho_ventana, pantalla_creditos.h=alto_ventana;
-    pantalla_creditos.i=tigrBitmap(pantalla_creditos.w, pantalla_creditos.h);
+    // Asignacion de las coordenadas y las dimensiones de la pantalla ranking.
+    pantalla_ranking.x=0, pantalla_ranking.y=0, pantalla_ranking.w=ancho_ventana, pantalla_ranking.h=alto_ventana;
+    pantalla_ranking.i=tigrBitmap(pantalla_ranking.w, pantalla_ranking.h);
     plantilla.x=ancho_ventana/8, plantilla.y=alto_ventana/10, plantilla.w=6*ancho_ventana/8, plantilla.h=8*alto_ventana/10;
     
-    caso=-1;
+    caso=-1, minutos=0, segundos=0;
     
     cierre=false, ending=false;
-    
+
     while((!tigrClosed(pantalla)) && (!cierre)) {
         tiempo_total=Calcular_Tiempo();
+        // Obtiene la posición del cursor y si esta haciendo click.
         tigrMouse(pantalla, &cursor.x, &cursor.y, &click);
         // Vuelve al menu.
         if((tigrKeyHeld(pantalla, TK_ESCAPE)) && (!ending)) {
@@ -1473,39 +1571,43 @@ int imprimir_creditos(Tigr *pantalla, int ancho_ventana, int alto_ventana, float
         // Elevacion del cierre.
         if(ending) {
             elevacion_cierre=velocidad_ending*tiempo_total;
-            pantalla_creditos.y-=elevacion_cierre;
+            pantalla_ranking.y-=elevacion_cierre;
         }
         // Comprobacion de si la ventana se va ha cerrar.
-        if(pantalla_creditos.y<=-pantalla_creditos.h) {
+        if(pantalla_ranking.y<=-pantalla_ranking.h) {
             cierre=true;
         }
         // Limpia el fondo de la pantalla.
         tigrClear(pantalla, tigrRGB(0, 0, 0));
         if(!ending) {
             // Limpia la pantalla de niveles.
-            tigrClear(pantalla_creditos.i, tigrRGB(0, 0, 0));
-            // Obtiene la posición del cursor y si esta haciendo click.
+            tigrClear(pantalla_ranking.i, tigrRGB(0, 0, 0));
             // Pinta la plantilla.
-            tigrFill(pantalla_creditos.i, plantilla.x, plantilla.y, plantilla.w, plantilla.h, color_azul);
-            //poner nombres
-                tigrPrint(pantalla_creditos.i, tfont, 4.35*ancho_ventana/16 , 6.85*alto_ventana/16, tigrRGB(255,255,255), "Maciá Valero, Andrés", 0);
-                tigrPrint(pantalla_creditos.i, tfont, 4.35*ancho_ventana/16 , 7.85*alto_ventana/16, tigrRGB(255,255,255), "Launov Draganov, Danil", 0);
-                tigrPrint(pantalla_creditos.i, tfont, 4.35*ancho_ventana/16 , 8.85*alto_ventana/16, tigrRGB(255,255,255), "Veldemar Volkov,Alexander", 0);
-
-            
-
-            
-            tigrBlitAlpha(pantalla_creditos.i, cursor.i, cursor.x, cursor.y, 0, 0, 32, 32, 1);
+            tigrFill(pantalla_ranking.i, plantilla.x, plantilla.y, plantilla.w, plantilla.h, color_azul);
+            // Pinta el ranking 1.
+            tigrPrint(pantalla_ranking.i, tfont, 6.15*ancho_ventana/16 , 3*alto_ventana/16, tigrRGB(255,255,255), "Ranking Nivel 1", 0);
+            for(i=0; i<5 && ranking1.lista[i].tiempo!=0; i++) {
+                tigrPrint(pantalla_ranking.i, tfont, 4*ancho_ventana/16 , 4*alto_ventana/16+(i*20), tigrRGB(255,255,255), "%s", ranking1.lista[i].nombre);
+                tigrPrint(pantalla_ranking.i, tfont, 10*ancho_ventana/16 , 4*alto_ventana/16+(i*20), tigrRGB(255,255,255), "- %02d:%02d", (int)ranking1.lista[i].tiempo/60, (int)ranking1.lista[i].tiempo-60*((int)ranking1.lista[i].tiempo/60));
+            }
+            // Pinta el ranking 2.
+            tigrPrint(pantalla_ranking.i, tfont, 6.15*ancho_ventana/16 , 8.5*alto_ventana/16, tigrRGB(255,255,255), "Ranking Nivel 2", 0);
+            for(i=0; i<5 && ranking2.lista[i].tiempo!=0; i++) {
+                tigrPrint(pantalla_ranking.i, tfont, 4*ancho_ventana/16 , 9.5*alto_ventana/16+(i*20), tigrRGB(255,255,255), "%s", ranking2.lista[i].nombre);
+                tigrPrint(pantalla_ranking.i, tfont, 10*ancho_ventana/16 , 9.5*alto_ventana/16+(i*20), tigrRGB(255,255,255), "- %02d:%02d", (int)ranking2.lista[i].tiempo/60, (int)ranking2.lista[i].tiempo-60*((int)ranking2.lista[i].tiempo/60));
+            }
+            tigrBlitAlpha(pantalla_ranking.i, cursor.i, cursor.x, cursor.y, 0, 0, 32, 32, 1);
         }
         // Integracion de la ventana niveles a la pantalla
-        tigrBlitAlpha(pantalla, pantalla_creditos.i, pantalla_creditos.x, pantalla_creditos.y, 0, 0, pantalla_creditos.w, pantalla_creditos.h, 1);
+        tigrBlitAlpha(pantalla, pantalla_ranking.i, pantalla_ranking.x, pantalla_ranking.y, 0, 0, pantalla_ranking.w, pantalla_ranking.h, 1);
         // Refresca la imagen.
         tigrUpdate(pantalla);
     }
     return caso;
 }
-
 int main() {
+    // Creacion de rankings
+    TLista_ranking ranking1, ranking2;
     // Establecimiento de la primera pantalla en abrirse.
     int caso=0;
     // Establecimiento del nivel al que ir.
@@ -1517,7 +1619,8 @@ int main() {
     Tigr *pantalla;
     char nombre[11];
 
-
+    // Cargamos el ranking;
+    cargar_ranking(&ranking1, &ranking2);
     printf("Se esta abriendo la ventana del juego...");
     // Abre la ventana del juego.
     pantalla=tigrWindow(ancho_ventana, alto_ventana, "Pig King", TIGR_NOCURSOR | TIGR_2X);
@@ -1531,17 +1634,15 @@ int main() {
                     break;
             case 1: caso=poner_nombre(pantalla, ancho_ventana, alto_ventana, nombre, velocidad_cierre);
                     break;
-            case 2: caso=juego(pantalla, ancho_ventana, alto_ventana, nombre,velocidad_cierre, &nivel);
+            case 2: caso=juego(pantalla, &ranking1, &ranking2, ancho_ventana, alto_ventana, nombre,velocidad_cierre, &nivel);
                     break;
             case 3: nivel=2;
-                    caso=juego(pantalla, ancho_ventana, alto_ventana, nombre,velocidad_cierre, &nivel);
+                    caso=juego(pantalla, &ranking1, &ranking2, ancho_ventana, alto_ventana, nombre,velocidad_cierre, &nivel);
                     break;
             case 4: caso=selector_de_niveles(pantalla, ancho_ventana, alto_ventana, &nivel, velocidad_cierre);
                     break;
-            case 5: caso=imprimir_creditos(pantalla, ancho_ventana, alto_ventana, velocidad_cierre);
+            case 5: caso=imprimir_ranking(pantalla, ranking1, ranking2, ancho_ventana, alto_ventana, velocidad_cierre);
         }
-
-       
     } while(caso!=-1);
     // Cierre de la ventana del juego.
     tigrFree(pantalla);
